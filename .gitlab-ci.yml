@@ -17,8 +17,8 @@ build:
     - conda build .
     # Save conda package
     - cd $CI_PROJECT_DIR
-    - mkdir -p conda-bld/linux-64
-    - cp $CONDA_ROOT_DIR/conda-bld/linux-64/*.tar.bz2 conda-bld/linux-64/
+    - mkdir ./conda-bld
+    - cp -r $CONDA_ROOT_DIR/conda-bld/{linux-64,noarch} ./conda-bld
   artifacts:
     paths:
     - conda-bld
@@ -27,14 +27,13 @@ build:
   stage: test
   script:
     - conda config --append channels kimlab
-    - conda update conda  # update channels cache
-    - mkdir -p $CONDA_ROOT_DIR/conda-bld/linux-64/
-    - cp conda-bld/linux-64/* $CONDA_ROOT_DIR/conda-bld/linux-64/
-    - conda index $CONDA_ROOT_DIR/conda-bld/linux-64/
-    - conda install -yq --use-local --use-index-cache $PKG_NAME
+    - cp -r ./conda-bld/* $CONDA_ROOT_DIR/conda-bld/
+    - conda index $CONDA_ROOT_DIR/conda-bld/
+    - conda install 'requests<2.12'
+    - conda install -yq --use-local $PKG_NAME
     # Custom
     - conda env remove -n scons -y || true
-    - conda create -yf -n scons python scons openssl readline ncurses
+    - conda create -fyq -n scons python scons openssl readline ncurses
     - cd pdb2pqr
     - export PYTHON=$(which python)
     - $CONDA_ROOT_DIR/envs/scons/bin/scons scons/scons.py $TEST_NAME

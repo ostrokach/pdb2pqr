@@ -6,30 +6,7 @@ build:
   number: 0
 
 source:
-  path: ../../../
-
-test:
-  files:
-    - 3PTB.pdb
-  source_files:
-    - pdb2pqr/scons/**
-    - pdb2pqr/site_scons/**
-    - pdb2pqr/tests/**
-    - pdb2pqr/SConstruct
-    - pdb2pqr/SConscript*
-  commands:
-    # # Simple
-    - pdb2pqr_cli --verbose --ff parse --with-ph=7.0 --ff=parse --ph-calc-method=propka31 3PTB.pdb 3PTB.pqr
-    - pdb2pqr_cli --verbose --ff parse --with-ph=7.0 --ff=parse --ph-calc-method=propka31 pdb2pqr/tests/local-test/1AFS.pdb 1AFS.pqr
-    # SCons
-    - conda env remove -n scons -y || true
-    - conda create -yf -n scons python scons openssl readline ncurses
-    - cd pdb2pqr
-    - export PYTHON=$(which python)
-    - /opt/conda/envs/scons/bin/scons scons/scons.py local-test
-    - /opt/conda/envs/scons/bin/scons scons/scons.py basic-test
-    - /opt/conda/envs/scons/bin/scons scons/scons.py pdb2pka-test
-    - /opt/conda/envs/scons/bin/scons scons/scons.py advanced-test
+  path: ../../
 
 requirements:
   build:
@@ -41,6 +18,19 @@ requirements:
     - propka
     - pdb2pka
     - future
+
+test:
+  files:
+    - 3PTB.pdb
+  source_files:
+    - pdb2pqr/scons/**
+    - pdb2pqr/site_scons/**
+    - pdb2pqr/tests/**
+    - pdb2pqr/SConstruct
+    - pdb2pqr/SConscript*
+  commands:
+    - pdb2pqr_cli --verbose --ff parse --with-ph=7.0 --ff=parse --ph-calc-method=propka31 3PTB.pdb 3PTB.pqr
+    - pdb2pqr_cli --verbose --ff parse --with-ph=7.0 --ff=parse --ph-calc-method=propka31 pdb2pqr/tests/local-test/1AFS.pdb 1AFS.pqr
 
 about:
   home: http://www.poissonboltzmann.org/
