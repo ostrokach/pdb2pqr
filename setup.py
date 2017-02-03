@@ -31,6 +31,7 @@ setup(name='pdb2pqr',
                 'pdb2pqr.src',
                 'pdb2pqr.pdb2pka',
                 'pdb2pqr.propka30',
+                'pdb2pqr.propka30.Source',
                 'pdb2pqr.extensions'
                 ],
       package_data={'pdb2pqr': ['dat/*', 'NEWS', 'README.md', 'COPYING', 'AUTHORS']},

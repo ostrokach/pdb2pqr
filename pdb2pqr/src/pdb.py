@@ -2293,6 +2293,10 @@ def readPDB(file):
 
     while 1:
         line = file.readline().strip()
+        try:
+            line = line.decode()
+        except AttributeError:
+            pass
         if line == '':
             break
 

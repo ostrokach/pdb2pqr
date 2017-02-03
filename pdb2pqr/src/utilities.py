@@ -3,42 +3,42 @@
 
     This module provides various utilities for the PDB2PQR suite to be
     imported into other Python scripts.
-    
+
     ----------------------------
-   
+
     PDB2PQR -- An automated pipeline for the setup, execution, and analysis of
     Poisson-Boltzmann electrostatics calculations
 
-    Copyright (c) 2002-2011, Jens Erik Nielsen, University College Dublin; 
-    Nathan A. Baker, Battelle Memorial Institute, Developed at the Pacific 
-    Northwest National Laboratory, operated by Battelle Memorial Institute, 
-    Pacific Northwest Division for the U.S. Department Energy.; 
+    Copyright (c) 2002-2011, Jens Erik Nielsen, University College Dublin;
+    Nathan A. Baker, Battelle Memorial Institute, Developed at the Pacific
+    Northwest National Laboratory, operated by Battelle Memorial Institute,
+    Pacific Northwest Division for the U.S. Department Energy.;
     Paul Czodrowski & Gerhard Klebe, University of Marburg.
 
 	All rights reserved.
 
-	Redistribution and use in source and binary forms, with or without modification, 
+	Redistribution and use in source and binary forms, with or without modification,
 	are permitted provided that the following conditions are met:
 
-		* Redistributions of source code must retain the above copyright notice, 
+		* Redistributions of source code must retain the above copyright notice,
 		  this list of conditions and the following disclaimer.
-		* Redistributions in binary form must reproduce the above copyright notice, 
-		  this list of conditions and the following disclaimer in the documentation 
+		* Redistributions in binary form must reproduce the above copyright notice,
+		  this list of conditions and the following disclaimer in the documentation
 		  and/or other materials provided with the distribution.
         * Neither the names of University College Dublin, Battelle Memorial Institute,
           Pacific Northwest National Laboratory, US Department of Energy, or University
           of Marburg nor the names of its contributors may be used to endorse or promote
           products derived from this software without specific prior written permission.
 
-	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-	IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-	INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
-	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-	LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
-	OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+	IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+	INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+	LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+	OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 	OF THE POSSIBILITY OF SUCH DAMAGE.
 
     ----------------------------
@@ -51,19 +51,19 @@ DIHEDRAL = 57.2958
 
 import math
 import os
-from os.path import splitext 
+from os.path import splitext
 import sys
 
 def startLogFile(jobName, fileName, logInput):
     from .aconf import INSTALLDIR, TMPDIR
     with open('%s%s%s/%s' % (INSTALLDIR, TMPDIR, jobName, fileName), 'w') as f:
         f.write(logInput)
-        
+
 def appendToLogFile(jobName, fileName, logInput):
     from .aconf import INSTALLDIR, TMPDIR
     with open('%s%s%s/%s' % (INSTALLDIR, TMPDIR, jobName, fileName), 'a') as f:
         f.write(logInput)
-        
+
 def resetLogFile(jobName, fileName):
     """
     For clearing out old log files if needed.
@@ -75,18 +75,18 @@ def resetLogFile(jobName, fileName):
         os.remove(filename)
     except EnvironmentError:
         pass
-        
+
 def getTrackingScriptString(jobid=None):
     """
     For injecting tracking script into a web page.
-    
+
     jobid -> current jobid. Adds "jobid" custom variable to events and page views on this page.
     """
     customVarString = ""
-    
+
     if jobid is not None:
         customVarString = "_gaq.push(['_setCustomVar',1,'jobid','{jobid}',3]);".format(jobid=str(jobid))
-        
+
     #If you look closely you'll see escaped { and }.
     string = """<script type="text/javascript">
 
@@ -135,14 +135,14 @@ def createPropkaOptions(pH, verbose=False, reference='neutral'):
     propkaOpts.display_coupled_residues = None
     propkaOpts.print_iterations = None
     propkaOpts.version_label = "Nov30"
-    
-    #These adds a few bits to propkaOpts 
-    from propka30.Source import lib
+
+    #These adds a few bits to propkaOpts
+    from pdb2pqr.propka30.Source import lib
     lib.interpretMutator(propkaOpts)
     #With the current defaults used here this does not do anything.
     #However if we start adding the propka options we'll need to do this.
     lib.setDefaultAlignmentFiles(propkaOpts)
-    
+
     return propkaOpts
 
 
@@ -152,9 +152,9 @@ def createPropkaOptions(pH, verbose=False, reference='neutral'):
 #    global totalDelay
 #    valueString = ', "{value}"'.format(value=value) if value is not None else ""
 #    eventString = 'setTimeout(\'_gaq.push(["_trackEvent", "{category}", "{action}", "{label}"{valuestr}])\',{delay});\n'
-#    result =  eventString.format(category=str(category), 
-#                                 action=str(action), 
-#                                 label=str(label), 
+#    result =  eventString.format(category=str(category),
+#                                 action=str(action),
+#                                 label=str(label),
 #                                 valuestr=valueString,
 #                                 delay=totalDelay)
 #    totalDelay+=500
@@ -248,9 +248,9 @@ def analyzeConnectivity(map, key):
                 for value in map[key]:
                     if value not in list:
                         keys.append(value)
-    
+
         keys.pop(keys.index(key))
-        
+
     return list
 
 def getAngle(coords1, coords2, coords3):
@@ -278,24 +278,24 @@ def getAngle(coords1, coords2, coords3):
             angle = 360.0 - angle
         return angle
 
-#TODO: with changes to --userff and --usernames getFFfile and getNamesFile do not need to go on wild 
+#TODO: with changes to --userff and --usernames getFFfile and getNamesFile do not need to go on wild
 #goose chases to find the files in question.
 def getFFfile(name):
     """
         Grab the forcefield file.  May or may not residue in the dat/
         directory.
     """
-    
+
     if name is None:
         return ''
-    
+
     path = ""
     dirs = sys.path + ["dat"]
     dirs = dirs + [os.path.abspath(os.path.join(__file__,"..","..","dat"))]
     if name in ["amber", "charmm", "parse", "tyl06", "peoepb", "swanson"]: name = name.upper()
 
     names = ["dat/%s.DAT" % name]
-    
+
     names.append("%s.DAT" % name)
     names.append("%s.dat" % name)
     names.append("dat/%s" % name)
@@ -311,7 +311,7 @@ def getFFfile(name):
                 return testpath
 
     # If we get here return empty string
-    
+
     return ""
 
 def getNamesFile(name):
@@ -323,10 +323,10 @@ def getNamesFile(name):
         Returns
             path:  The path to the file (string)
     """
-    
+
     if name is None:
         return ''
-    
+
     path = ""
     dirs = sys.path + ["dat"]
     dirs = dirs + [os.path.abspath(os.path.join(__file__,"..","..","dat"))]
@@ -335,7 +335,7 @@ def getNamesFile(name):
 
     names = ["dat/%s.names" % name]
     names.append("%s.names" % name)
-  
+
     for guess in names:
         if os.path.isfile(guess):
             return guess
@@ -346,9 +346,9 @@ def getNamesFile(name):
                 return testpath
 
     # If we get here return empty string
-    
+
     return ""
-    
+
 def getDatFile(name):
     """
         Grab a data file. If the file cannot be found in the
@@ -401,7 +401,7 @@ def getPDBFile(path):
     else:
         file = open(path, 'rU')
     return file
-        
+
 def distance(coords1, coords2):
     """
         Calculate the distance between two coordinates, as denoted by
@@ -427,7 +427,7 @@ def distance(coords1, coords2):
 def add(coords1, coords2):
     """
         Add one 3-dimensional point to another
-        
+
         Parameters
             coords1: coordinates of form [x,y,z]
             coords2: coordinates of form [x,y,z]
@@ -489,7 +489,7 @@ def dot(coords1, coords2):
 def normalize(coords):
     """
         Normalize a set of coordinates
-        
+
         Parameters
             coords: coordinates of form [x,y,z]
         Returns
@@ -526,7 +526,7 @@ def getDihedral(coords1, coords2, coords3, coords4):
             value: Size of the angle (float)
     """
     value = 0.0
-    
+
     list43 = subtract(coords4, coords3)
     list32 = subtract(coords3, coords2)
     list12 = subtract(coords1, coords2)
@@ -535,7 +535,7 @@ def getDihedral(coords1, coords2, coords3, coords4):
     Anorm = normalize(A)
     B = cross(list43, list32)
     Bnorm = normalize(B)
-    
+
     scal = dot(Anorm, Bnorm)
     if abs(scal + 1.0) < SMALL:
         value = 180.0
@@ -548,4 +548,3 @@ def getDihedral(coords1, coords2, coords3, coords4):
     if chiral < 0:
         value = value * -1.0
     return value
-    
