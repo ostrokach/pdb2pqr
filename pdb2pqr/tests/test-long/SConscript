@@ -9,22 +9,22 @@ AddOption('--long-test-count',
         type=int,
         help='When building the long-test target specify how many tests to run.')
 
-commandLineStart = sys.executable + ' ' + str(pdb2pqr[0])
-nullTarget = '/dev/null'    
+commandLineStart = os.environ['PYTHON'] + ' -m pdb2pqr'
+nullTarget = '/dev/null'
 if os.name == 'nt':
     nullTarget = 'nul'
-    
+
 testList = []
 testParams = []
 with open('lst') as f:
     for inName in f.readlines():
     	name = inName.strip()
     	testParams.append((name,'out/'+name+'.pqr','out/'+name+'.std','out/'+name+'.err'))
-        
+
 testCount = GetOption('longTestCount')
 if not GetOption("clean") and testCount is not None and testCount > 0:
     testParams = testParams[:testCount]
-    
+
 #Long Test
 for param in testParams:
     testCommand = commandLineStart + ' --verbose --ff=PARSE %s ${TARGETS[0]} 1>${TARGETS[1]} 2>${TARGETS[2]}' % param[0]
@@ -34,7 +34,7 @@ for param in testParams:
         env.Default(runTest)
     else:
         Depends(runTest, DEFAULT_TARGETS)
-    
+
     AlwaysBuild(runTest)
     testList.append(runTest)
 

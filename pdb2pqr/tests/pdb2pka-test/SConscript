@@ -2,9 +2,9 @@ Import('env')
 Import('pdb2pqr')
 Import('setupTest')
 import sys
+import os
 
-
-commandLineStart = sys.executable + ' ' + str(pdb2pqr[0])
+commandLineStart = os.environ['PYTHON'] + ' -m pdb2pqr'
 testList = []
 
 #PDB2PKA Test

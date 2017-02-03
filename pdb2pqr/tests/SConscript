@@ -1,6 +1,7 @@
 Import('env')
 Import('pdb2pqr')
 import sys
+import os
 
 def setupTest(testName, testRunBuilder, valRunBuilders):
 	if GetOption("clean"):
@@ -19,7 +20,7 @@ def setupTest(testName, testRunBuilder, valRunBuilders):
 
 	return testAliasObj
 
-commandLineStart = sys.executable + ' ' + str(pdb2pqr[0])
+commandLineStart = os.environ['PYTHON'] + ' -m pdb2pqr'
 
 Export('setupTest')
 

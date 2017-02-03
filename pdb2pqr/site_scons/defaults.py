@@ -9,7 +9,7 @@ defaultURL = 'http://' + platform.node() + '/pdb2pqr/'
 defaultMaxAtoms = 10000
 codePath = os.getcwd()
 
-pythonBin = sys.executable
+pythonBin = os.environ['PYTHON']
 
 buildTime = datetime.today()
 productVersion = 'master'
