@@ -1,3 +1,7 @@
+from __future__ import division
+from __future__ import absolute_import
+from builtins import object
+from past.utils import old_div
 #
 # * This library is free software; you can redistribute it and/or
 # * modify it under the terms of the GNU Lesser General Public
@@ -37,10 +41,10 @@
 #   Journal of Chemical Theory and Computation, 7, 525-537 (2011)
 #-------------------------------------------------------------------------------------------------------
 import math
-import lib
+from . import lib
 pka_print = lib.pka_print
 import sys, os
-from calculator import calculate
+from .calculator import calculate
 
 
 def pKa_mod(resName):
@@ -606,7 +610,7 @@ class Version(object):
         """
         calculating the atom-based desolvation weight
         """
-        weight = float(Nmass - self.Nmin)/float(self.Nmax - self.Nmin)
+        weight = old_div(float(Nmass - self.Nmin),float(self.Nmax - self.Nmin))
         weight = min(1.0, weight)
         weight = max(0.0, weight)
 
@@ -620,7 +624,7 @@ class Version(object):
         Nmass = Nmass1 + Nmass2
         Nmin  = 2*self.Nmin
         Nmax  = 2*self.Nmax
-        weight = float(Nmass - Nmin)/float(Nmax - Nmin)
+        weight = old_div(float(Nmass - Nmin),float(Nmax - Nmin))
         weight = min(1.0, weight)
         weight = max(0.0, weight)
 
@@ -668,7 +672,7 @@ class Version(object):
                    'TRP': "TRP"}
 
 
-        if resName in resType.keys():
+        if resName in list(resType.keys()):
             return resType[resName]
         else:
             return None
@@ -884,7 +888,7 @@ class Version(object):
         N_pair = Nmass1 + Nmass2
         Nmin = 2*self.Nmin
         Nmax = 2*self.Nmax
-        weight = float(N_pair - Nmin)/float(Nmax - Nmin)
+        weight = old_div(float(N_pair - Nmin),float(Nmax - Nmin))
         weight = min(1.0, weight)
         weight = max(0.0, weight)
 
@@ -1019,7 +1023,7 @@ class Oct13(Version):
         
         if resName in Q:
             return Q[resName]
-        elif resName in self.ions.keys():
+        elif resName in list(self.ions.keys()):
             return self.ions[resName]
         else:
             return 0.00
@@ -1046,9 +1050,9 @@ class Oct13(Version):
                    'GLN': "AMD",
                    'TRP': "TRP"}
 
-        if resName in resType.keys():
+        if resName in list(resType.keys()):
             return resType[resName]
-        elif resName in self.ions.keys():
+        elif resName in list(self.ions.keys()):
             return 'LIG'
         else:
             return None
@@ -1384,7 +1388,7 @@ class Oct14(Version):
         return exception, value
 
 
-class Jan01_old:
+class Jan01_old(object):
     """ 
     This is a test to set up rules for different propka versions
     """
@@ -1488,7 +1492,7 @@ class Jan01_old:
 
 
 
-class Dec18_old():
+class Dec18_old(object):
     """ 
     This is a test to set up rules for different propka versions
     """
@@ -1599,7 +1603,7 @@ class Dec18_old():
         """
         N_pair = Nmass1 + Nmass2
         #Npair = residue1.Nmass + residue2.Nmass
-        weight = float(N_pair - self.Nmin)/float(self.Nmax - self.Nmin)
+        weight = old_div(float(N_pair - self.Nmin),float(self.Nmax - self.Nmin))
         weight = min(1.0, weight)
         weight = max(0.0, weight)
 

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from builtins import range
 #
 # * This library is free software; you can redistribute it and/or
 # * modify it under the terms of the GNU Lesser General Public
@@ -37,7 +39,7 @@
 #   Journal of Chemical Theory and Computation, 7, 525-537 (2011)
 #-------------------------------------------------------------------------------------------------------
 import  sys, math, string
-from lib import int2roman, convertResidueCode, pka_print
+from .lib import int2roman, convertResidueCode, pka_print
 
 
 def compareFoldingContributions(target=None, template=None, options=None):
@@ -48,7 +50,7 @@ def compareFoldingContributions(target=None, template=None, options=None):
     4. calculate the difference
     5. printout sorted result
     """
-    from mutate import readAlignmentFiles
+    from .mutate import readAlignmentFiles
 
     # checking that pKa values are available
     checkDonePKA(target, template)
@@ -77,7 +79,7 @@ def makeNameList(name=None, alignment=None, options=None):
     make a list of pdbcodes in 'alignment'
     """
     names = [name]
-    for key in alignment.keys():
+    for key in list(alignment.keys()):
       if key not in names:
         names.append(key)
 
@@ -115,8 +117,8 @@ sequence alignment:
 """
     str = str[:-1]
     pka_print(str)
-    for key1 in alignment.keys():
-      for key2 in alignment[key1].keys():
+    for key1 in list(alignment.keys()):
+      for key2 in list(alignment[key1].keys()):
         str = "    %s 100 %s 0" % (key2, "%")
         index = 0
         for code in alignment[key1][key2]['sequence']:

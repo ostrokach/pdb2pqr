@@ -1,3 +1,8 @@
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
+from builtins import object
+from past.utils import old_div
 #
 # * This library is free software; you can redistribute it and/or
 # * modify it under the terms of the GNU Lesser General Public
@@ -38,10 +43,10 @@
 #-------------------------------------------------------------------------------------------------------
 import pickle,sys,os,math
 
-from lib import pka_print
+from .lib import pka_print
 
 
-class bondmaker:
+class bondmaker(object):
     def __init__(self):
         self.SS_dist = 2.5;
         self.H_dist = 1.5;
@@ -250,9 +255,9 @@ class bondmaker:
         
         # apply table information on pi-electrons
         for atom in ligand.atoms:
-            if atom.name in self.number_of_pi_electrons_in_bonds_ligands.keys():
+            if atom.name in list(self.number_of_pi_electrons_in_bonds_ligands.keys()):
                 atom.number_of_pi_electrons_in_double_and_triple_bonds = self.number_of_pi_electrons_in_bonds_ligands[atom.name]
-            if atom.name in self.number_of_pi_electrons_in_conjugate_bonds_in_ligands.keys():
+            if atom.name in list(self.number_of_pi_electrons_in_conjugate_bonds_in_ligands.keys()):
                 atom.number_of_pi_electrons_in_conjugate_double_and_triple_bonds = self.number_of_pi_electrons_in_conjugate_bonds_in_ligands[atom.name]
 
             # just in case any protein residues are included
@@ -335,9 +340,9 @@ class bondmaker:
         pka_print('z range: [%6.2f;%6.2f] %6.2f'%(zmin,zmax,zlen))
         
         # how many boxes do we need in each dimension?
-        self.no_box_x = math.ceil(xlen/box_size)
-        self.no_box_y = math.ceil(ylen/box_size)
-        self.no_box_z = math.ceil(zlen/box_size)
+        self.no_box_x = math.ceil(old_div(xlen,box_size))
+        self.no_box_y = math.ceil(old_div(ylen,box_size))
+        self.no_box_z = math.ceil(old_div(zlen,box_size))
 
         pka_print('No. box x: %6.2f'%self.no_box_x)
         pka_print('No. box y: %6.2f'%self.no_box_y)
@@ -352,15 +357,15 @@ class bondmaker:
 
         # put atoms into boxes
         for atom in atoms:
-            x = math.floor((atom.x-xmin)/box_size)
-            y = math.floor((atom.y-ymin)/box_size)
-            z = math.floor((atom.z-zmin)/box_size)
+            x = math.floor(old_div((atom.x-xmin),box_size))
+            y = math.floor(old_div((atom.y-ymin),box_size))
+            z = math.floor(old_div((atom.z-zmin),box_size))
             self.put_atom_in_box(x,y,z,atom)
         
             
 
         # assign bonds 
-        keys = self.boxes.keys()
+        keys = list(self.boxes.keys())
         for key in keys:
             self.find_bonds_for_atoms(self.boxes[key])
             
@@ -374,7 +379,7 @@ class bondmaker:
             for by in [y-1,y,y+1]:
                 for bz in [z-1,z,z+1]:   
                     key = self.box_key(bx,by,bz)
-                    if key in self.boxes.keys():
+                    if key in list(self.boxes.keys()):
                         self.boxes[key].append(atom)
 
                         #pka_print(atom,'->',key,':',len(self.boxes[key]))

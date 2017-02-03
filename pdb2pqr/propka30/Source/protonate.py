@@ -39,11 +39,16 @@
 #-------------------------------------------------------------------------------------------------------
 
 
-from vector_algebra import *
-import bonds, pdb
-from lib import pka_print
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
+from builtins import object
+from past.utils import old_div
+from .vector_algebra import *
+from . import bonds, pdb
+from .lib import pka_print
 
-class Protonate:
+class Protonate(object):
     """ Protonates atoms using VSEPR theory """
     
     def __init__(self):
@@ -307,7 +312,7 @@ class Protonate:
         pka_print('%65s: %4.1f'%('Charge(-)',atom.charge))
         atom.steric_number -= atom.charge
         
-        atom.steric_number = math.floor(atom.steric_number/2.0)
+        atom.steric_number = math.floor(old_div(atom.steric_number,2.0))
 
         atom.number_of_lone_pairs = atom.steric_number - len(atom.bonded_atoms) - atom.number_of_protons_to_add
 

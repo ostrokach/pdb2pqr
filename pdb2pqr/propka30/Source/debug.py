@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from builtins import range
 #
 # * This library is free software; you can redistribute it and/or
 # * modify it under the terms of the GNU Lesser General Public
@@ -37,10 +39,10 @@
 #   Journal of Chemical Theory and Computation, 7, 525-537 (2011)
 #-------------------------------------------------------------------------------------------------------
 import string
-import lib
-import calculator as calculate
+from . import lib
+from . import calculator as calculate
 
-from lib import pka_print
+from .lib import pka_print
 
 
 def interactionMatrix(interaction):
@@ -69,9 +71,9 @@ def printResInfo(resInfo):
     printing out all information in resInfo
     """
     pka_print("in resInfo:")
-    for key1 in resInfo.keys():
+    for key1 in list(resInfo.keys()):
       pka_print(" --- %s ---" % (key1))
-      for key2 in resInfo[key1].keys():
+      for key2 in list(resInfo[key1].keys()):
         pka_print(key2, resInfo[key1][key2])
 
 
@@ -162,9 +164,9 @@ def printAlignment(alignment):
     """
     Prints out alignment information for debugging
     """
-    for key in alignment.keys():
+    for key in list(alignment.keys()):
       pka_print( " --- %s ---" % (key) )
-      for key2 in alignment[key].keys():
+      for key2 in list(alignment[key].keys()):
         pka_print("%s %5d%2s" % (alignment[key][key2]["name"], alignment[key][key2]["resNumb"], alignment[key][key2]["chainID"]))
         pka_print("%s\n" % (alignment[key][key2]["sequence"]))
 

@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from builtins import range
+from builtins import object
 #
 # * This library is free software; you can redistribute it and/or
 # * modify it under the terms of the GNU Lesser General Public
@@ -37,11 +40,11 @@
 #   Journal of Chemical Theory and Computation, 7, 525-537 (2011)
 #-------------------------------------------------------------------------------------------------------
 import math, time
-import calculator as calculate
-import lib
+from . import calculator as calculate
+from . import lib
 pka_print = lib.pka_print
 #import debug
-from determinant import Determinant
+from .determinant import Determinant
 
 
 # Some library functions for the interative pKa determinants
@@ -362,7 +365,7 @@ def findIterative(pair, iteratives):
 
 
 
-class Iterative:
+class Iterative(object):
     """
         Iterative class - pKa values and references of iterative residues
         Note, this class has a fake determinant list, true determinants are

@@ -1,3 +1,8 @@
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
+from builtins import object
+from past.utils import old_div
 #
 # * This library is free software; you can redistribute it and/or
 # * modify it under the terms of the GNU Lesser General Public
@@ -37,19 +42,19 @@
 #   Journal of Chemical Theory and Computation, 7, 525-537 (2011)
 #-------------------------------------------------------------------------------------------------------
 import math, sys, os, time, string
-import lib
+from . import lib
 pka_print = lib.pka_print
-import determinants
-import pdb 
+from . import determinants
+from . import pdb 
 #import debug
-import output
-import coupled_residues
-import calculator as calculate
-from chain import Chain
+from . import output
+from . import coupled_residues
+from . import calculator as calculate
+from .chain import Chain
 
 
 
-class Protein:
+class Protein(object):
     """
         Protein class - contains chains and protein properties
     """
@@ -290,7 +295,7 @@ class Protein:
         """ 
         protonates the protein according to given scheme
         """ 
-        from protonator import makeProtonator
+        from .protonator import makeProtonator
         please = makeProtonator(scheme=scheme)
         self.removeHydrogens()
 
@@ -317,7 +322,7 @@ class Protein:
         """ 
         # create a default version if not provided
         if version == None:
-          import version
+          from . import version
           version = version.makeVersion(label=options.version_label)
 
         if len(self.configurations) == 1:
@@ -408,25 +413,25 @@ class Protein:
           pka_print(str)
 
         # get the average pKa properties by dividing the sum with number of configurations, len(configuration keys)
-        from determinants import Determinant
+        from .determinants import Determinant
         for residue in pka_residues:
           residue_key = residue.label
           sum_pka = 0.00; sum_Nmass = 0.00; sum_Emass = 0.00; sum_Nlocl = 0.00; sum_Elocl = 0.00
-          for key in pkas[residue_key].keys():
+          for key in list(pkas[residue_key].keys()):
             sum_pka   += pkas[residue_key][key]
             sum_Nmass += Nmass[residue_key][key]
             sum_Emass += Emass[residue_key][key]
             sum_Nlocl += Nlocl[residue_key][key]
             sum_Elocl += Elocl[residue_key][key]
-          residue.pKa_pro = sum_pka/len( pkas[residue_key].keys() )
-          residue.Nmass   = sum_Nmass/len( pkas[residue_key].keys() )
-          residue.Emass   = sum_Emass/len( pkas[residue_key].keys() )
-          residue.Nlocl   = sum_Nlocl/len( pkas[residue_key].keys() )
-          residue.Elocl   = sum_Elocl/len( pkas[residue_key].keys() )
+          residue.pKa_pro = old_div(sum_pka,len( list(pkas[residue_key].keys()) ))
+          residue.Nmass   = old_div(sum_Nmass,len( list(pkas[residue_key].keys()) ))
+          residue.Emass   = old_div(sum_Emass,len( list(pkas[residue_key].keys()) ))
+          residue.Nlocl   = old_div(sum_Nlocl,len( list(pkas[residue_key].keys()) ))
+          residue.Elocl   = old_div(sum_Elocl,len( list(pkas[residue_key].keys()) ))
           residue.determinants = [[], [], []]
           for type in range(3):
-            for key in determinants[residue_key][type].keys():
-              value = determinants[residue_key][type][key] / len( pkas[residue_key].keys() )
+            for key in list(determinants[residue_key][type].keys()):
+              value = old_div(determinants[residue_key][type][key], len( list(pkas[residue_key].keys()) ))
               if abs(value) > 0.005:  # <-- removing determinant that appears as 0.00
                 newDeterminant = Determinant(key, value)
                 residue.determinants[type].append(newDeterminant)
@@ -774,7 +779,7 @@ class Protein:
         """ 
         mutates the protein according to 'mutation' using 'method'
         """
-        import mutate
+        from . import mutate
         newProtein = mutate.makeMutatedProtein(self, mutation=mutation, atoms=atoms, options=options)
 
         return  newProtein
@@ -784,7 +789,7 @@ class Protein:
         """ 
         permutes multiple mutations and determins the most stable combination; note, you need the version for stability calculations
         """
-        import mutate
+        from . import mutate
         best_mutation = mutate.optimizeMutationDeterminants(self, mutation=mutation, atoms=atoms, alignment=alignment, version=version, options=options)
 
         return  best_mutation
@@ -794,7 +799,7 @@ class Protein:
         """ 
         permutes multiple mutations and determins the most stable combination; note, you need the version for stability calculations
         """
-        import mutate
+        from . import mutate
         best_mutation = mutate.optimizeMultipleMutations(self, mutations=mutations, atoms=atoms, alignment=None, version=version, options=options)
 
         return  best_mutation
@@ -914,7 +919,7 @@ class Protein:
         file.write(str)
 
         # set 'protein' based on pdbcode
-        for protein in experiment.keys():
+        for protein in list(experiment.keys()):
           str  = "%s" % (protein)
           #pka_print(str)
           #str += " %s" % (experiment[protein]['pdb'])
@@ -925,7 +930,7 @@ class Protein:
         # setting a list of labels to work with
         if   labels == None or labels == "ALL":
           labels = []
-          for label in experiment[protein].keys():
+          for label in list(experiment[protein].keys()):
             labels.append(label)
 
         # iterating that list
@@ -961,7 +966,7 @@ def getResidueParameters():
     """ 
     Reads necessary information about residues (includes ions)
     """ 
-    from parameters_new import resName2Type, getQs, pKa_mod
+    from .parameters_new import resName2Type, getQs, pKa_mod
     resInfo = {}
     # reading residue information from parameters.py
     resInfo['resType'] = resName2Type()
@@ -970,7 +975,7 @@ def getResidueParameters():
     resInfo['type']    = {'C- ': "C-terminus",
                           'N+ ': "N-terminus"}
     # setting up 'type' = 'amino-acid' for residues
-    for resName in resInfo['resType'].keys():
+    for resName in list(resInfo['resType'].keys()):
       if resName not in resInfo['type']:
         resInfo['type'][resName] = "amino-acid"
 

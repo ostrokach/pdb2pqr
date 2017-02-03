@@ -1,3 +1,7 @@
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
+from past.utils import old_div
 #
 # * This library is free software; you can redistribute it and/or
 # * modify it under the terms of the GNU Lesser General Public
@@ -38,7 +42,7 @@
 #-------------------------------------------------------------------------------------------------------
 import math, random, string
 
-from lib import pka_print
+from .lib import pka_print
 
 
 def InterAtomDistance(atom1, atom2):
@@ -75,9 +79,9 @@ def AngleFactorX(atom1=None, atom2=None, atom3=None, center=None):
 
     distance_23 = math.sqrt( dX_32*dX_32 + dY_32*dY_32 + dZ_32*dZ_32 )
 
-    dX_32 = dX_32/distance_23
-    dY_32 = dY_32/distance_23
-    dZ_32 = dZ_32/distance_23
+    dX_32 = old_div(dX_32,distance_23)
+    dY_32 = old_div(dY_32,distance_23)
+    dZ_32 = old_div(dZ_32,distance_23)
 
     if atom1 == None:
       dX_21 = center[0] - atom2.x
@@ -90,9 +94,9 @@ def AngleFactorX(atom1=None, atom2=None, atom3=None, center=None):
 
     distance_12 = math.sqrt( dX_21*dX_21 + dY_21*dY_21 + dZ_21*dZ_21 )
 
-    dX_21 = dX_21/distance_12
-    dY_21 = dY_21/distance_12
-    dZ_21 = dZ_21/distance_12
+    dX_21 = old_div(dX_21,distance_12)
+    dY_21 = old_div(dY_21,distance_12)
+    dZ_21 = old_div(dZ_21,distance_12)
 
     f_angle = dX_21*dX_32 + dY_21*dY_32 + dZ_21*dZ_32
 
@@ -106,7 +110,7 @@ def linearCoulombEnergy(distance, weight, version, options=None):
     """
     DIS1  = version.coulomb_cutoff[0]
     DIS2  = version.coulomb_cutoff[1]
-    value = 1.0-(distance-DIS1)/(DIS2-DIS1)
+    value = 1.0-old_div((distance-DIS1),(DIS2-DIS1))
     value = min(1.0, value)
     value = max(0.0, value)
     dpka  = version.coulomb_maxpka * value * weight
@@ -128,7 +132,7 @@ def CoulombEnergy(distance, weight, version, options=None):
       diel = version.coulomb_diel
 
     R = max(distance, version.coulomb_cutoff[0])
-    dpka  =244.12/(diel*R) - 244.12/(diel*version.coulomb_cutoff[1])
+    dpka  =old_div(244.12,(diel*R)) - old_div(244.12,(diel*version.coulomb_cutoff[1]))
     if version.coulomb_scaled == True:
       dpka = dpka*weight
 
@@ -151,7 +155,7 @@ def distanceScaledCoulombEnergy(distance, weight, version, options=None):
     # making sure short contacts doesn't blow up
     R = max(distance, version.coulomb_cutoff[0])
     # making sure that the Coulomb dies off at cutoff[1] in a nice way.
-    scale = ( R - version.coulomb_cutoff[1] ) / ( version.coulomb_cutoff[0] - version.coulomb_cutoff[1] )
+    scale = old_div(( R - version.coulomb_cutoff[1] ), ( version.coulomb_cutoff[0] - version.coulomb_cutoff[1] ))
     scale = max(0.0, scale)
     scale = min(1.0, scale)
     dpka  = 244.12/(diel*R) * scale
@@ -166,8 +170,8 @@ def MixedCoulombEnergy(distance, weight, version, options=None):
     """
     R = max(distance, version.coulomb_cutoff[0])
     eps       = (1 + 39*(1 - math.exp(-0.18*R)))
-    dpka_sur  = 244.12/(80.*R) - 244.12/(80.*version.coulomb_cutoff[1])
-    dpka_bur  = 244.12/(eps*R) - 244.12/(eps*version.coulomb_cutoff[1])
+    dpka_sur  = old_div(244.12,(80.*R)) - old_div(244.12,(80.*version.coulomb_cutoff[1]))
+    dpka_bur  = old_div(244.12,(eps*R)) - old_div(244.12,(eps*version.coulomb_cutoff[1]))
     dpka      = weight*dpka_bur + (1.0-weight)*dpka_sur
 
     return abs(dpka)
@@ -182,7 +186,7 @@ def HydrogenBondEnergy(distance, dpka_max, cutoff, f_angle=1.0):
     elif distance > cutoff[1]:
       value = 0.00
     else:
-      value = 1.0-(distance-cutoff[0])/(cutoff[1]-cutoff[0])
+      value = 1.0-old_div((distance-cutoff[0]),(cutoff[1]-cutoff[0]))
 
     dpKa  = dpka_max*value*f_angle
 
@@ -195,7 +199,7 @@ def buriedRatio(Nmass):
     """
     Nmin =  300.0
     Nmax =  600.0
-    buried_ratio = (float(Nmass) - Nmin)/(Nmax - Nmin)
+    buried_ratio = old_div((float(Nmass) - Nmin),(Nmax - Nmin))
     buried_ratio = max(0.00, buried_ratio)
     buried_ratio = min(1.00, buried_ratio)
 
@@ -218,7 +222,7 @@ def radialVolumeDesolvation(residue, atoms, version, options=None):
     dV            = 0.00
     volume        = 0.00
     min_distance_4th = pow(2.75, 4)
-    for chainID in atoms.keys():
+    for chainID in list(atoms.keys()):
       for key in atoms[chainID]["keys"]:
         for atom in atoms[chainID][key]:
           if atom.element != "H":
@@ -241,7 +245,7 @@ def radialVolumeDesolvation(residue, atoms, version, options=None):
                 dZ = atom.z - residue.z
                 distance_sqr = dX*dX + dY*dY + dZ*dZ
                 if  distance_sqr < version.desolv_cutoff_sqr:
-                  dV_inc  = dV/max(min_distance_4th, distance_sqr*distance_sqr)
+                  dV_inc  = old_div(dV,max(min_distance_4th, distance_sqr*distance_sqr))
                   volume += dV_inc
                   if residue.label in ["ASP   8 a", "ASP  10 a", "GLU 172 a", "ASP  92 a", "GLU  66 a"]:
                     # test printout
@@ -273,7 +277,7 @@ def contactDesolvation(residue, atoms, version, options=None):
       local_cutoff = 0.00
     residue.Nmass = 0
     residue.Nlocl = 0
-    for chainID in atoms.keys():
+    for chainID in list(atoms.keys()):
       for key in atoms[chainID]["keys"]:
         for atom in atoms[chainID][key]:
           if atom.element != "H":
@@ -312,7 +316,7 @@ def originalDesolvation(residue=None, atoms=None, version=None, options=None):
     Nlocl_his6   = 0
     residue.Nmass = 0
     residue.Nlocl = 0
-    for chainID in atoms.keys():
+    for chainID in list(atoms.keys()):
       for key in atoms[chainID]["keys"]:
         for atom in atoms[chainID][key]:
           HYDROGEN_ATOM = ( (atom.name[0] == 'H') or (atom.name[0] in string.digits and atom.name[1] == 'H') )
@@ -369,7 +373,7 @@ def BackBoneReorganization(protein):
         center = [residue.x, residue.y, residue.z]
         distance, f_angle, nada = AngleFactorX(atom2=atom2, atom3=atom3, center=center)
         if distance <  6.0 and f_angle > 0.001:
-          value = 1.0-(distance-3.0)/(6.0-3.0)
+          value = 1.0-old_div((distance-3.0),(6.0-3.0))
           dpKa += 0.80*min(1.0, value)
 
       residue.Elocl = dpKa*weight
@@ -398,7 +402,7 @@ def TmProfile(protein, reference="neutral", grid=[0., 14., 0.1], Tm=None, Tms=No
           dG = protein.calculateFoldingEnergy(pH, reference=reference)
           dTm = -4.187*(dG - dG_ref)/dS
           Tm_calc = Tm_ref+dTm
-          ave_diff += (Tm_calc - Tm)/number_of_Tms
+          ave_diff += old_div((Tm_calc - Tm),number_of_Tms)
           #Tm_ref -= (Tm_old+dTm - Tm)/(2*number_of_Tms)
         Tm_ref -= ave_diff
         #pka_print("%6.2lf %6.2lf %6.2lf" % (Tm_ref, ave_diff, Tm_ref - Tm_old))
@@ -456,15 +460,15 @@ def pI(protein, pI=7.0, options=None):
         pI_mod += shift_mod
       Q1_pro, Q1_mod = protein.calculateCharge(pI_pro)
       Q2_pro, Q2_mod = protein.calculateCharge(pI_mod)
-      k1 = (Q1_pro - Q2_pro)/(pI_pro - pI_mod)
-      k2 = (Q2_mod - Q1_mod)/(pI_mod - pI_pro)
-      shift = -Q1_pro/k1
+      k1 = old_div((Q1_pro - Q2_pro),(pI_pro - pI_mod))
+      k2 = old_div((Q2_mod - Q1_mod),(pI_mod - pI_pro))
+      shift = old_div(-Q1_pro,k1)
       if abs(shift) > 4.0:
-        shift = shift/abs(shift)
+        shift = old_div(shift,abs(shift))
       pI_pro += shift
-      shift = -Q2_mod/k2
+      shift = old_div(-Q2_mod,k2)
       if abs(shift) > 4.0:
-        shift = shift/abs(shift)
+        shift = old_div(shift,abs(shift))
       pI_mod += shift
       #pka_print("%4d%8.3lf%8.3lf" % (iter, pI_pro, pI_mod))
     #if options.verbose == True:

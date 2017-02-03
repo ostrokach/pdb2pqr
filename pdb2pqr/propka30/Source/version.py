@@ -1,3 +1,7 @@
+from __future__ import division
+from __future__ import absolute_import
+from builtins import object
+from past.utils import old_div
 #
 # * This library is free software; you can redistribute it and/or
 # * modify it under the terms of the GNU Lesser General Public
@@ -38,9 +42,9 @@
 #-------------------------------------------------------------------------------------------------------
 
 import math
-import lib
+from . import lib
 import sys, os
-import calculator as calculate
+from . import calculator as calculate
 pka_print = lib.pka_print
 
 
@@ -385,7 +389,7 @@ class Version(object):
         """
         calculating the atom-based desolvation weight
         """
-        weight = float(Nmass - self.Nmin)/float(self.Nmax - self.Nmin)
+        weight = old_div(float(Nmass - self.Nmin),float(self.Nmax - self.Nmin))
         weight = min(1.0, weight)
         weight = max(0.0, weight)
 
@@ -399,7 +403,7 @@ class Version(object):
         Nmass = Nmass1 + Nmass2
         Nmin  = 2*self.Nmin
         Nmax  = 2*self.Nmax
-        weight = float(Nmass - Nmin)/float(Nmax - Nmin)
+        weight = old_div(float(Nmass - Nmin),float(Nmax - Nmin))
         weight = min(1.0, weight)
         weight = max(0.0, weight)
 
@@ -413,7 +417,7 @@ class Version(object):
         if resType == None:
           # doing it for all residues
           #pka_print("changing back-bone parameters")
-          for key in self.BackBoneParameters.keys():
+          for key in list(self.BackBoneParameters.keys()):
             self.BackBoneParameters[key][0] = dpka
             str  = " %s: %6.2lf " % (key, self.BackBoneParameters[key][0])
             str += "[%5.2lf,%5.2lf]" % (self.BackBoneParameters[key][1][0], self.BackBoneParameters[key][1][1])
@@ -434,9 +438,9 @@ class Version(object):
         """
         if resType == None:
           # doing it for all residues
-          for key1 in self.SideChainParameters.keys():
+          for key1 in list(self.SideChainParameters.keys()):
             #pka_print("changing side-chain parameters for resType \"%s\"" % (key1))
-            for key2 in self.SideChainParameters[key1].keys():
+            for key2 in list(self.SideChainParameters[key1].keys()):
               self.SideChainParameters[key1][key2][0] = dpka
               str  = " %s: %6.2lf " % (key2, self.SideChainParameters[key1][key2][0])
               str += "[%5.2lf,%5.2lf]" % (self.SideChainParameters[key1][key2][1][0], self.SideChainParameters[key1][key2][1][1])
@@ -445,7 +449,7 @@ class Version(object):
           # doing it just for residue 'key1'
           key1 = resType
           #pka_print("changing side-chain parameters for resType \"%s\"" % (key1))
-          for key2 in self.SideChainParameters[key1].keys():
+          for key2 in list(self.SideChainParameters[key1].keys()):
             self.SideChainParameters[key1][key2][0] = dpka
             self.SideChainParameters[key2][key1][0] = dpka
             str  = " %s: %6.2lf " % (key2, self.SideChainParameters[key1][key2][0])
@@ -457,7 +461,7 @@ class Version(object):
         """
         setting the Coulomb model, and its parameters. If parameter is not defined, it will take the default from 'parameters.py'
         """
-        import parameters_new as parameters
+        from . import parameters_new as parameters
         coulomb_parameters = parameters.getCoulombParameters()
         if label not in coulomb_parameters:
           pka_print("do not accept Coulomb model \"%s\\n" % (label))
@@ -494,7 +498,7 @@ class Version(object):
         """
         setting the desolvation model, and its parameters
         """
-        import parameters_new as parameters
+        from . import parameters_new as parameters
         desolvation_parameters = parameters.getDesolvationParameters()
         if label not in desolvation_parameters:
           pka_print("do not accept solvation model \"%s\\n" % (label))
@@ -661,7 +665,7 @@ class Jan01(Version):
         """
         Rules of action for version Jan01
         """
-        import parameters_std as parameters
+        from . import parameters_std as parameters
     
         self.name             = "Jan01"
         self.Nmin             =  300
@@ -750,7 +754,7 @@ class Jan15(Version):
         """
         Rules of action for version Jan15
         """
-        import parameters_std as parameters
+        from . import parameters_std as parameters
 
         self.name             = "Jan15"
         self.Nmin             =  300
@@ -839,7 +843,7 @@ class May13(Version):
         """
         Rules of action for version May13
         """
-        import parameters_std as parameters
+        from . import parameters_std as parameters
 
         self.name             = "May13"
         self.coulomb_cutoff =   7.00
@@ -869,7 +873,7 @@ class Dec18(Version):
         """
         Rules of action for version Dec18
         """
-        import parameters_std as parameters
+        from . import parameters_std as parameters
 
         self.name             = "Dec18"
         self.Nmin             =  300
@@ -925,7 +929,7 @@ class Dec19(Version):
         """
         Rules of action for version Dec19
         """
-        import parameters_std as parameters
+        from . import parameters_std as parameters
         
         self.name             = "Dec19"
         self.Nmin             =  300
@@ -981,7 +985,7 @@ class Aug24(Version):
         """
         Rules of action for version Aug24
         """
-        import parameters_new as parameters
+        from . import parameters_new as parameters
 
         self.name             = "Aug24"
         self.Nmin             =  280
@@ -1009,7 +1013,7 @@ class Aug30(Version):
         """
         Rules of action for version Aug30
         """
-        import parameters_new as parameters
+        from . import parameters_new as parameters
 
         self.name             = "Aug30"
         self.Nmin             =  280
@@ -1037,7 +1041,7 @@ class Aug31(Version):
         """
         Rules of action for version Aug31
         """
-        import parameters_new as parameters
+        from . import parameters_new as parameters
 
         self.name             = "Aug31"
         self.Nmin             =  280
@@ -1065,7 +1069,7 @@ class Sep05(Version):
         """
         Rules of action for version Sep05
         """
-        import parameters_new as parameters
+        from . import parameters_new as parameters
 
         self.name             = "Sep05"
         self.Nmin             =  280
@@ -1093,7 +1097,7 @@ class Sep06(Version):
         """
         Rules of action for version Sep06
         """
-        import parameters_new as parameters
+        from . import parameters_new as parameters
 
         self.name             = "Sep06"
         self.Nmin             =  280
@@ -1121,7 +1125,7 @@ class Sep07(Version):
         """
         Rules of action for version Sep07
         """
-        import parameters_new as parameters
+        from . import parameters_new as parameters
 
         self.name             = "Sep07"
         self.Nmin             =  280
@@ -1149,7 +1153,7 @@ class Sep08(Version):
         """
         Rules of action for version Sep08
         """
-        import parameters_new as parameters
+        from . import parameters_new as parameters
 
         self.name             = "Sep08"
         self.Nmin             =  280
@@ -1177,7 +1181,7 @@ class Oct13(Version):
         """
         Rules of action for version Oct13, based on Sep07
         """
-        import parameters_new as parameters
+        from . import parameters_new as parameters
 
         self.name             = "Oct13"
         self.Nmin             =  280
@@ -1239,7 +1243,7 @@ class Oct13(Version):
         
         if resName in Q:
             return Q[resName]
-        elif resName in self.ions.keys():
+        elif resName in list(self.ions.keys()):
             return self.ions[resName]
         else:
             return 0.00
@@ -1266,9 +1270,9 @@ class Oct13(Version):
                    'GLN': "AMD",
                    'TRP': "TRP"}
 
-        if resName in resType.keys():
+        if resName in list(resType.keys()):
             return resType[resName]
-        elif resName in self.ions.keys():
+        elif resName in list(self.ions.keys()):
             return 'LIG'
         else:
             return None
@@ -1309,7 +1313,7 @@ class Oct14(Version):
         """
         Rules of action for version Oct14
         """
-        import parameters_new as parameters
+        from . import parameters_new as parameters
 
         self.name             = "Oct14"
         self.Nmin             =  280
@@ -1337,7 +1341,7 @@ class Nov28(Version):
         """
         Rules of action for version Oct14
         """
-        import parameters_new as parameters
+        from . import parameters_new as parameters
 
         self.name             = "Nov28"
         self.Nmin             =  280
@@ -1365,7 +1369,7 @@ class Nov29(Version):
         """
         Rules of action for version Nov29
         """
-        import parameters_new as parameters
+        from . import parameters_new as parameters
 
         self.name             = "Nov29"
         self.Nmin             =  280
@@ -1393,7 +1397,7 @@ class Nov30(Version):
         """
         Rules of action for version Nov30
         """
-        import parameters_new as parameters
+        from . import parameters_new as parameters
 
         self.name             = "Nov30"
         self.Nmin             =  280

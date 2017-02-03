@@ -1,3 +1,7 @@
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
+from builtins import object
 #!/usr/bin/python
 #
 # * This library is free software; you can redistribute it and/or
@@ -40,7 +44,7 @@
 
 
 import sys, pdb, protonate, lib, bonds
-from vector_algebra import *
+from .vector_algebra import *
 pka_print = lib.pka_print
 
 all_sybyl_types = [
@@ -178,14 +182,14 @@ max_C_triple_bond = 1.2
 max_C_double_bond_squared = max_C_double_bond*max_C_double_bond
 max_C_triple_bond_squared = max_C_triple_bond*max_C_triple_bond
 
-class ligand:
+class ligand(object):
     def __init__(self, atoms):
         self.atoms = atoms
         for atom in self.atoms:
             atom.residue = self
 
         #self.remove_ions()
-        self.configuration_keys = atoms[0].configurations.keys()
+        self.configuration_keys = list(atoms[0].configurations.keys())
         
         # create ligand residue objects
         self.ligand_residues = []
@@ -265,7 +269,7 @@ class ligand:
         for atom in self.atoms:
             # check if we already have assigned a name to this atom
             if hasattr(atom, 'sybyl_assigned'):
-                print(atom.resName, atom.numb, atom.name, 'alreadyassigned')
+                print((atom.resName, atom.numb, atom.name, 'alreadyassigned'))
                 continue
 
             # find some properties of the atom
@@ -312,7 +316,7 @@ class ligand:
 
             if atom.get_element() == 'C':
                 # check for amide
-                if 'O' in bonded_elements.values() and 'N' in bonded_elements.values():
+                if 'O' in list(bonded_elements.values()) and 'N' in list(bonded_elements.values()):
                     self.set_type(atom, 'C.2')
                     for b in atom.bonded_atoms:
                         if b.get_element() == 'N':
@@ -481,7 +485,7 @@ class ligand:
 
 
 
-class ligand_residue:
+class ligand_residue(object):
     def __init__(self, atoms):
         self.resNumb = -1
         self.resName = ''

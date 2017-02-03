@@ -1,3 +1,8 @@
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
+from builtins import object
+from past.utils import old_div
 #
 # * This library is free software; you can redistribute it and/or
 # * modify it under the terms of the GNU Lesser General Public
@@ -40,11 +45,11 @@ import sys
 import string
 import math
 import copy
-import lib
-from pdb import Atom
+from . import lib
+from .pdb import Atom
 pka_print = lib.pka_print
 
-class Residue:
+class Residue(object):
     """
         Residue class - contains atoms and properties of the residue
     """
@@ -107,7 +112,7 @@ class Residue:
                 self.type = "ligand"
 
             # setting the number of configurations for this residue
-            for key in atom.configurations.keys():
+            for key in list(atom.configurations.keys()):
                 if key not in self.configurations:
                     self.configurations.append(key)
 
@@ -197,9 +202,9 @@ class Residue:
             self.y += atom.y
             self.z += atom.z
         if number_of_atoms > 0:
-            self.x = self.x/number_of_atoms
-            self.y = self.y/number_of_atoms
-            self.z = self.z/number_of_atoms
+            self.x = old_div(self.x,number_of_atoms)
+            self.y = old_div(self.y,number_of_atoms)
+            self.z = old_div(self.z,number_of_atoms)
 
 
     def getThirdAtomInAngle(self, atom=None):
@@ -578,7 +583,7 @@ class Residue:
             x =  self.Q*(self.pKa_pro - pH)
             #x =  pH - self.pKa_pro
         y = 10**x
-        charge = self.Q*(y/(1.0+y))
+        charge = self.Q*(old_div(y,(1.0+y)))
         #charge = math.log10(1+y)
 
         return charge
@@ -593,7 +598,7 @@ class Residue:
         state = "folded"
         titration_curve = []
         pH   = grid[0]
-        stop = grid[1] + grid[2]/2.0
+        stop = grid[1] + old_div(grid[2],2.0)
         while pH < stop:
             Q  = self.getCharge(pH, state)
             titration_curve.append([pH, Q])
@@ -792,7 +797,7 @@ class Residue:
           atom.x += translation[0]
           atom.y += translation[1]
           atom.z += translation[2]
-          for key in atom.configurations.keys():
+          for key in list(atom.configurations.keys()):
             for i in range(3):
               atom.configurations[key][i] += translation[i]
 
@@ -801,18 +806,18 @@ class Residue:
         """
         rotate residue theta radians around axis with center=center
         """
-        from rotate import generalRotationMatrix
+        from .rotate import generalRotationMatrix
         translate = [0.00, 0.00, 0.00]
         number_of_atoms = 0
         for atom in self.atoms:
           if atom.name in center or center == None:
             number_of_atoms += 1
-            translate[0] += atom.x/len(self.atoms)
-            translate[1] += atom.y/len(self.atoms)
-            translate[2] += atom.z/len(self.atoms)
+            translate[0] += old_div(atom.x,len(self.atoms))
+            translate[1] += old_div(atom.y,len(self.atoms))
+            translate[2] += old_div(atom.z,len(self.atoms))
         for atom in self.atoms:
           for i in range(3):
-            translate[i] = translate[i]/number_of_atoms
+            translate[i] = old_div(translate[i],number_of_atoms)
 
         # translate to rotation center
         for atom in self.atoms:
@@ -839,7 +844,7 @@ class Residue:
           atom.z = new_position[2]
 
           # rotate configuration
-          for key in atom.configurations.keys():
+          for key in list(atom.configurations.keys()):
             for xyz in range(3):
               new_position[xyz] = translate[xyz]
               for i in range(3):
@@ -855,7 +860,7 @@ class Residue:
         """
         making a copy of this residue
         """
-        from protein import getResidueParameters
+        from .protein import getResidueParameters
         if chainID == None: chainID = self.chainID
         if resNumb == None: resNumb = self.resNumb
 

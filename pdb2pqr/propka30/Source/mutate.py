@@ -1,3 +1,8 @@
+from __future__ import division
+from __future__ import absolute_import
+from builtins import chr
+from builtins import range
+from past.utils import old_div
 #
 # * This library is free software; you can redistribute it and/or
 # * modify it under the terms of the GNU Lesser General Public
@@ -38,10 +43,10 @@
 #-------------------------------------------------------------------------------------------------------
 import math, os, sys, re
 
-import lib
+from . import lib
 pka_print = lib.pka_print
-import output
-import pdb
+from . import output
+from . import pdb
 #import debug
 
 
@@ -119,7 +124,7 @@ def postProcessCombinatorialMutation(proteins, options=None):
     best_mutation = "WT"
     dG_ref = proteins["WT"][0]
     pka_print("%8s %6s\n%8.2lf %6.2lf  %s" % ("dG_fold", "ddG_fold", dG_ref, dG_ref-dG_ref, "WT"))
-    for label in proteins.keys():
+    for label in list(proteins.keys()):
       if label != "WT":
         dG_mut, protein, full_mutation = proteins[label]
         pka_print("%8.2lf %6.2lf  %s" % (dG_mut, dG_mut-dG_ref, label))
@@ -163,7 +168,7 @@ def makeMutatedProtein(protein, mutation=None, atoms=None, alignment=None, optio
     """
     returning a new protein, mutation approach determined from options.mutator
     """
-    from protein import Protein
+    from .protein import Protein
     pka_print("mutator: %s" % (options.mutator.label))
     pka_print("type: %s\n" % (options.mutator.type))
 
@@ -174,9 +179,9 @@ def makeMutatedProtein(protein, mutation=None, atoms=None, alignment=None, optio
         alignment = readAlignmentFiles(filenames=options.alignment, mesophile=protein.name, options=options)
       pdbcode, rest = splitStringMutationInTwo(mutation)
       if pdbcode == None:
-        mutation = remakeStringMutation(mutation, protein.atoms.keys())
+        mutation = remakeStringMutation(mutation, list(protein.atoms.keys()))
       else:
-        mutation = remakeStringMutation(mutation, protein.atoms.keys(), atoms[pdbcode].keys())
+        mutation = remakeStringMutation(mutation, list(protein.atoms.keys()), list(atoms[pdbcode].keys()))
       dict_mutation = recastIntoDictionary(mutation, alignment=alignment, protein=protein)
     elif isinstance(mutation, dict):
       # this is already in dictionary-format
@@ -233,7 +238,7 @@ def printMutation(mutation):
     print out the mutation in formatted form
     """
     pka_print(" ----- mutation ----- \n", "  residue    rmsd")
-    for key in mutation.keys():
+    for key in list(mutation.keys()):
       pka_print("  %s %6.2lf" % (mutation[key]['label'], mutation[key]['rmsd']))
 
 
@@ -325,7 +330,7 @@ def readAlignmentFiles(filenames=None, mesophile=None, options=None):
     
     
         # store it as alignment-pairs in 'alignments'
-        for key in alignment.keys():
+        for key in list(alignment.keys()):
           if re.search(mesophile, key):
             """ do nothing, this matches the mesophile """
             # pka_print("match,  don't do \"%s\" \"%s\":" % (mesophile, key))
@@ -359,7 +364,7 @@ def getBackTrackTranslation(backbone, options=None):
     get the translation for the 'back-tracking' in the 'alignment-mutation'
     """
     rmsd = 0.00; number_of_atoms = 0; translation = [0.00, 0.00, 0.00]
-    for key in backbone.keys():
+    for key in list(backbone.keys()):
       number_of_atoms += 1
       atom1, atom2 = backbone[key]
       dX = atom2.x - atom1.x;
@@ -369,9 +374,9 @@ def getBackTrackTranslation(backbone, options=None):
       translation[1] += dY
       translation[2] += dZ
       rmsd += dX*dX + dY*dY + dZ*dZ
-    rmsd = math.sqrt(rmsd/number_of_atoms)
+    rmsd = math.sqrt(old_div(rmsd,number_of_atoms))
     for i in range(3):
-      translation[i] = translation[i]/number_of_atoms
+      translation[i] = old_div(translation[i],number_of_atoms)
 
     return translation, rmsd
 
@@ -381,7 +386,7 @@ def copyAtomsDictionary(atoms=None, options=None):
     creating a copy of the atoms dictionary
     """
     newAtoms = {}
-    for chainID in atoms.keys():
+    for chainID in list(atoms.keys()):
       # creating new chain dictionary
       newAtoms[chainID] = {'keys': []}
       for key in atoms[chainID]['keys']:
@@ -402,7 +407,7 @@ def mutateAtomsDictionaryUsingAlignment(protein, atoms=None, mutation=None, opti
     newAtoms = copyAtomsDictionary(atoms=protein.atoms, options=options)
     configs  = [ protein.configurations[0] ]
 
-    for key in mutation.keys():
+    for key in list(mutation.keys()):
 
       singleMutateAtomsDictionary(atoms=newAtoms, 
                                   template=atoms, 
@@ -476,7 +481,7 @@ def mutateAtomsDictionary_old(protein, atoms=None, mutation=None, options=None):
       newAtoms[chainID] = {"keys": []}
       for key in protein.atoms[chainID]["keys"]:
         atomList = []
-        if key in mutation.keys():
+        if key in list(mutation.keys()):
           # adding residue from thermophile data
           code = mutation[key]['pdb']
           key1 = mutation[key]['template']
@@ -530,7 +535,7 @@ def splitIntoMutationData(generic_mutation):
     elif isinstance(generic_mutation, list):
       mutation_list = generic_mutation
     elif isinstance(generic_mutation, dict):
-      for key in generic_mutation.keys():
+      for key in list(generic_mutation.keys()):
         chainID1 = generic_mutation[key]['target'][-1]
         code1, resName = lib.convertResidueCode(resName=generic_mutation[key]['target'][:3])
         resNumb = int(generic_mutation[key]['target'][3:7])
@@ -718,7 +723,7 @@ def generateCombinatorialDictionaryMutations(mutations=None):
           if   isinstance(mutations, dict):
             mutation[ keys[i] ] = mutations[ keys[i] ]
           elif isinstance(mutations, list):
-            for key in mutations[i].keys():
+            for key in list(mutations[i].keys()):
               mutation[ key ] = mutations[i][ key ]
         else:
           short += "N"
@@ -826,7 +831,7 @@ def extractMutationLabel(generic_mutation):
 
     label = ""
     if isinstance(generic_mutation, dict):
-      for key in generic_mutation.keys():
+      for key in list(generic_mutation.keys()):
         code1, resName = lib.convertResidueCode(resName=key[:3])
         code2, resName = lib.convertResidueCode(resName=generic_mutation[key]['label'][:3])
         label += "/%s%d%s" % (code1, int(key[3:7]), code2)
@@ -900,7 +905,7 @@ def makeDictionaryMutation(mutation=None, label=None, pdb=None, template=None):
         new[target_label]['target']   = target_label
       mutation = new
     elif isinstance(mutation, dict):
-      for key in mutation.keys():
+      for key in list(mutation.keys()):
         mutation[key]['target'] = key
         if "label" not in mutation[key] and "template" in mutation[key]:
           # generating new label
@@ -917,12 +922,12 @@ def calculateRMSDs(position):
     rmsd_new = 0.00
     rmsd_old = 0.00
     number_of_points = len(position['target'])
-    for key in position['target'].keys():
+    for key in list(position['target'].keys()):
       for i in range(3):
         rmsd_new += pow( (position['new'][key][i] - position['target'][key][i]), 2)
         rmsd_old += pow( (position['old'][key][i] - position['target'][key][i]), 2)
-    rmsd_new = rmsd_new/number_of_points
-    rmsd_old = rmsd_old/number_of_points
+    rmsd_new = old_div(rmsd_new,number_of_points)
+    rmsd_old = old_div(rmsd_old,number_of_points)
     rmsd_new = math.sqrt(rmsd_new)
     rmsd_old = math.sqrt(rmsd_old)
 
@@ -1010,8 +1015,8 @@ def mutateAtomsDictionaryUsingOverlap(protein=None, atoms=None, mutation=None, o
     """
     This routine overlaps two residues based on an array of atom labels, 'center'
     """
-    from corresponding_atoms import makeCorrespondingAtomNames
-    from rotate import rotatePosition, translatePosition, makeCrossProduct, calculateVectorLength, \
+    from .corresponding_atoms import makeCorrespondingAtomNames
+    from .rotate import rotatePosition, translatePosition, makeCrossProduct, calculateVectorLength, \
                               makeScalarProduct, generateRandomDisplacement, generateRandomRotation, rotateAtoms, translateAtoms
 
     # create copy of target
@@ -1022,7 +1027,7 @@ def mutateAtomsDictionaryUsingOverlap(protein=None, atoms=None, mutation=None, o
     dR       = [None, None, None]
     center   = ['CA']
 
-    for key in mutation.keys():
+    for key in list(mutation.keys()):
 
       # mutate the new atoms dictionary (position unchanged)
       singleMutateAtomsDictionary(atoms=newAtoms,
@@ -1054,7 +1059,7 @@ def mutateAtomsDictionaryUsingOverlap(protein=None, atoms=None, mutation=None, o
       template_length      = calculateVectorLength(position['template']['N'])
       target_length        = calculateVectorLength(position['target']['N'])
       cross_product_length = calculateVectorLength(cross_product)
-      theta1 = math.asin(cross_product_length/(target_length*template_length))
+      theta1 = math.asin(old_div(cross_product_length,(target_length*template_length)))
       # pka_print("REMARK: theta1 = %6.3lf" % (theta1*180/math.pi))
       rotatePosition(position['template'], cross_product, -theta1, center=['CA'])
       rotateAtoms(newAtoms[target_chainID][label], cross_product, -theta1, center=['CA'])
@@ -1066,9 +1071,9 @@ def mutateAtomsDictionaryUsingOverlap(protein=None, atoms=None, mutation=None, o
       target_length   = calculateVectorLength(target_cross_product)
       template_length = calculateVectorLength(template_cross_product)
       if makeScalarProduct(position['template']['C'], makeCrossProduct(position['target']['C'], position['target']['N'])) < 0.00:
-        theta2 =  math.acos(scalar_product/(target_length*template_length))
+        theta2 =  math.acos(old_div(scalar_product,(target_length*template_length)))
       else:
-        theta2 = -math.acos(scalar_product/(target_length*template_length))
+        theta2 = -math.acos(old_div(scalar_product,(target_length*template_length)))
       # pka_print("REMARK: theta2 = %6.3lf" % (theta2*180/math.pi))
       rotatePosition(position['template'], position['target']['N'], -theta2, center=['CA'])
       rotateAtoms(newAtoms[target_chainID][label], position['target']['N'], -theta2, center=['CA'])
@@ -1076,7 +1081,7 @@ def mutateAtomsDictionaryUsingOverlap(protein=None, atoms=None, mutation=None, o
       # initializing iterations: copy over 'template' to 'new' & 'old'
       chainNumb = ord("A")
       center    = []
-      for name in position['template'].keys():
+      for name in list(position['template'].keys()):
         center.append(name)
         position['new'][name] = [position['template'][name][0], position['template'][name][1], position['template'][name][2]]
         position['old'][name] = [position['template'][name][0], position['template'][name][1], position['template'][name][2]]
@@ -1101,7 +1106,7 @@ def mutateAtomsDictionaryUsingOverlap(protein=None, atoms=None, mutation=None, o
         if rmsd_new < rmsd_old:
           # pka_print("REMARK   update structure (iter %3d (%8.3lf%8.3lf))" % (iter, rmsd_new, rmsd_old))
           chainNumb += 1
-          for name in position['old'].keys():
+          for name in list(position['old'].keys()):
             for i in range(3):
               position['old'][name][i] = position['new'][name][i]
             if False:
@@ -1111,7 +1116,7 @@ def mutateAtomsDictionaryUsingOverlap(protein=None, atoms=None, mutation=None, o
           rotateAtoms(newAtoms[target_chainID][label], axis, theta, center=center)
           translateAtoms(newAtoms[target_chainID][label], dR)
         else:
-          for name in position['new'].keys():
+          for name in list(position['new'].keys()):
             for i in range(3):
               position['new'][name][i] = position['old'][name][i]
 
@@ -1172,7 +1177,7 @@ def makeCompositeAtomsDictionary(protein=None, pdbfiles=None, options=None):
               atoms[pdbcode] = pdb.readPDB(filename=pdbcode)
           else:
             # extracting pdbcode if mutation is in dictionary format
-            for key in mutation.keys():
+            for key in list(mutation.keys()):
               pdbcode = mutation[key]['pdb']
               if pdbcode not in atoms:
                 atoms[pdbcode] = pdb.readPDB(filename=pdbcode)
@@ -1201,10 +1206,10 @@ def makeMutationLight(original_protein=None, template_protein=None, mutation=Non
     translate = dictionary for translating target and template residues to the origin
     center    = array with atom names in 'position-dictionary': used for 'rotation-center'
     """
-    from rotate import rotatePosition, translatePosition, makeCrossProduct, calculateVectorLength, makeScalarProduct, generateRandomDisplacement, generateRandomRotation
+    from .rotate import rotatePosition, translatePosition, makeCrossProduct, calculateVectorLength, makeScalarProduct, generateRandomDisplacement, generateRandomRotation
 
     # start mutations
-    for label in mutation.keys():
+    for label in list(mutation.keys()):
 
       pka_print("%s ==> %s" % (label, mutation[label]['template']))
 
@@ -1219,10 +1224,10 @@ def makeMutationLight(original_protein=None, template_protein=None, mutation=Non
 
       # debug printout
       if False:
-        for key in position['target'].keys():
+        for key in list(position['target'].keys()):
           Rx, Ry, Rz = position['target'][key]
           pka_print("ATOM    669  %-3s %s A  89    %8.3lf%8.3lf%8.3lf" % (key, original_residue.resName, Rx, Ry, Rz))
-        for key in position['template'].keys():
+        for key in list(position['template'].keys()):
           Rx, Ry, Rz = position['template'][key]
           pka_print("ATOM    669  %-3s GLU B  89    %8.3lf%8.3lf%8.3lf" % ("H", Rx, Ry, Rz))
 
@@ -1231,14 +1236,14 @@ def makeMutationLight(original_protein=None, template_protein=None, mutation=Non
       template_length      = calculateVectorLength(position['template']['N'])
       target_length        = calculateVectorLength(position['target']['N'])
       cross_product_length = calculateVectorLength(cross_product)
-      theta1 = math.asin(cross_product_length/(target_length*template_length))
+      theta1 = math.asin(old_div(cross_product_length,(target_length*template_length)))
       pka_print("REMARK: theta1 = %6.3lf" % (theta1*180/math.pi))
       rotatePosition(position['template'], cross_product, -theta1, center=['CA'])
       copied_residue.rotate(cross_product, -theta1, center=['CA'])
 
       # debug printout
       if False:
-        for key in position['template'].keys():
+        for key in list(position['template'].keys()):
           Rx, Ry, Rz = position['template'][key]
           pka_print("ATOM    669  %-3s GLU C  89    %8.3lf%8.3lf%8.3lf" % ("H", Rx, Ry, Rz))
 
@@ -1249,21 +1254,21 @@ def makeMutationLight(original_protein=None, template_protein=None, mutation=Non
       target_length   = calculateVectorLength(target_cross_product)
       template_length = calculateVectorLength(template_cross_product)
       if makeScalarProduct(position['template']['C'], makeCrossProduct(position['target']['C'], position['target']['N'])) > 0.00:
-        theta2 =  math.acos(scalar_product/(target_length*template_length))
+        theta2 =  math.acos(old_div(scalar_product,(target_length*template_length)))
       else:
-        theta2 = -math.acos(scalar_product/(target_length*template_length))
+        theta2 = -math.acos(old_div(scalar_product,(target_length*template_length)))
       pka_print("REMARK: theta2 = %6.3lf" % (theta2*180/math.pi))
       rotatePosition(position['template'], position['target']['N'], -theta2, center=['CA'])
       copied_residue.rotate(position['target']['N'], -theta2, center=['CA'])
 
       # debug printout
       if False:
-        for key in position['template'].keys():
+        for key in list(position['template'].keys()):
           Rx, Ry, Rz = position['template'][key]
           pka_print("ATOM    669  %-3s GLU B  89    %8.3lf%8.3lf%8.3lf" % ("H", Rx, Ry, Rz))
 
       # initializing iterations: copy over 'template' to 'new' & 'old'
-      for key in position['template'].keys():
+      for key in list(position['template'].keys()):
         position['new'][key] = [position['template'][key][0], position['template'][key][1], position['template'][key][2]]
         position['old'][key] = [position['template'][key][0], position['template'][key][1], position['template'][key][2]]
 
@@ -1281,7 +1286,7 @@ def makeMutationLight(original_protein=None, template_protein=None, mutation=Non
         if rmsd_new < rmsd_old:
           # pka_print("REMARK   update structure (iter %3d (%8.3lf%8.3lf))" % (iter, rmsd_new, rmsd_old))
           chainNumb += 1
-          for key in position['old'].keys():
+          for key in list(position['old'].keys()):
             for i in range(3):
               position['old'][key][i] = position['new'][key][i]
             if False:
@@ -1292,7 +1297,7 @@ def makeMutationLight(original_protein=None, template_protein=None, mutation=Non
           copied_residue.translate(dR)
         else:
           # pka_print("no update        (iter %3d (%8.3lf%8.3lf))" % (iter, rmsd_new, rmsd_old))
-          for key in position['new'].keys():
+          for key in list(position['new'].keys()):
             for i in range(3):
               position['new'][key][i] = position['old'][key][i]
 

@@ -38,12 +38,13 @@
 #   Journal of Chemical Theory and Computation, 7, 525-537 (2011)
 #-------------------------------------------------------------------------------------------------------
 
+from __future__ import absolute_import
 import string, re, sys, os, math
-import Source.version as propka
-import Source.lib as lib
-from Source.protein import Protein
-from Source.mutate import makeCompositeAtomsDictionary
- 
+from .Source import version as propka
+from .Source import lib
+from .Source.protein import Protein
+from .Source.mutate import makeCompositeAtomsDictionary
+
 
 
 def main():
@@ -75,4 +76,3 @@ def main():
 
 
 if __name__ == '__main__': main()
-

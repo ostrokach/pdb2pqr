@@ -39,8 +39,14 @@
 #-------------------------------------------------------------------------------------------------------
 
 
+from __future__ import division
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import string, sys, copy, math
-import output
+from . import output
 
 
 def loadOptions():
@@ -62,39 +68,39 @@ def loadOptions():
     parser = OptionParser(usage)
 
     # loading the parser
-    parser.add_option("-f", "--file", action="append", dest="filenames", 
+    parser.add_option("-f", "--file", action="append", dest="filenames",
            help="read data from <filename>, i.e. <filename> is added to arguments")
-    parser.add_option("-r", "--reference", dest="reference", default="neutral", 
+    parser.add_option("-r", "--reference", dest="reference", default="neutral",
            help="setting which reference to use for stability calculations [neutral/low-pH]")
-    parser.add_option("-c", "--chain", action="append", dest="chains", 
+    parser.add_option("-c", "--chain", action="append", dest="chains",
            help="creating the protein with only a specified chain, note, chains without ID are labeled 'A' [all]")
-    parser.add_option("-t", "--thermophile", action="append", dest="thermophiles", 
+    parser.add_option("-t", "--thermophile", action="append", dest="thermophiles",
            help="defining a thermophile filename; usually used in 'alignment-mutations'")
-    parser.add_option("-a", "--alignment", action="append", dest="alignment", 
+    parser.add_option("-a", "--alignment", action="append", dest="alignment",
            help="alignment file connecting <filename> and <thermophile> [<thermophile>.pir]")
-    parser.add_option("-m", "--mutation", action="append", dest="mutations", 
+    parser.add_option("-m", "--mutation", action="append", dest="mutations",
            help="specifying mutation labels which is used to modify <filename> according to, e.g. N25R/N181D")
-    parser.add_option("-v", "--version", dest="version_label", default="Nov30", 
+    parser.add_option("-v", "--version", dest="version_label", default="Nov30",
            help="specifying the sub-version of propka [Jan15/Dec19]")
-    parser.add_option("-z", "--verbose", dest="verbose", action="store_true", default=True, 
+    parser.add_option("-z", "--verbose", dest="verbose", action="store_true", default=True,
            help="sleep during calculations")
     parser.add_option("-q", "--quiet", dest="verbose", action="store_false",
            help="sleep during calculations")
     parser.add_option(      "--mute", dest="verbose", action="store_false",
            help="sleep during calculations")
-    parser.add_option("-s", "--silent",  dest="verbose", action="store_false", 
+    parser.add_option("-s", "--silent",  dest="verbose", action="store_false",
            help="not activated yet")
-    parser.add_option("--verbosity",  dest="verbosity", action="store_const", 
+    parser.add_option("--verbosity",  dest="verbosity", action="store_const",
            help="level of printout - not activated yet")
-    parser.add_option("--protonation", dest="protonation", default="old-school", 
+    parser.add_option("--protonation", dest="protonation", default="old-school",
            help="setting protonation scheme")
-    parser.add_option("-p", "--pH", dest="pH", type="float", default=7.0, 
+    parser.add_option("-p", "--pH", dest="pH", type="float", default=7.0,
            help="setting pH-value used in e.g. stability calculations [7.0]")
     parser.add_option("--window", dest="window", nargs=3, type="float", default=(0.0, 14.0, 1.0),
            help="setting the pH-window to show e.g. stability profiles [0.0, 14.0, 1.0]")
     parser.add_option("--grid",   dest="grid",   nargs=3, type="float", default=(0.0, 14.0, 0.1),
            help="setting the pH-grid to calculate e.g. stability related properties [0.0, 14.0, 0.1]")
-    parser.add_option("--mutator", dest="mutator", 
+    parser.add_option("--mutator", dest="mutator",
            help="setting approach for mutating <filename> [alignment/scwrl/jackal]")
     parser.add_option("--mutator-option", dest="mutator_options", action="append",
            help="setting property for mutator [e.g. type=\"side-chain\"]")
@@ -139,7 +145,7 @@ proPKA_verbose = False
 def setVerbose(value):
     global proPKA_verbose
     proPKA_verbose = value
-    
+
 def pka_print(txt):
     if proPKA_verbose:
         print(txt)
@@ -199,7 +205,7 @@ def setDefaultAlignmentFiles(options):
           if filename not in options.alignment:
             options.alignment.append( filename )
         else:
-          for code in mutation.keys():
+          for code in list(mutation.keys()):
             filename = "%s.pir" % ( extractName(code) )
             if filename not in options.alignment:
               options.alignment.append( filename )
@@ -207,7 +213,7 @@ def setDefaultAlignmentFiles(options):
 
 def interpretMutationsDictionary_old(options):
     """
-    interprets the mutations in options; i.e. separating pdb-key and mutation label 
+    interprets the mutations in options; i.e. separating pdb-key and mutation label
     in e.g. '2vuj:N25R/N181D' - trying to use dictionary
     """
     mutations = []
@@ -237,7 +243,7 @@ def interpretMutationsDictionary_old(options):
         mutations[code].append(label)
       else:
         mutations[code] = [label]
-    
+
     # resetting the content of 'options.mutations to dictionary
     options.mutations = mutations
 
@@ -248,7 +254,7 @@ def interpretDictionaryMutations(options):
     like that; e.g. '2vuj:A:N25R/N181D', '2vuj:N25R/N181D' or 'N25R/N181D'
     """
     mutations = []
-    
+
     for mutation_line in options.mutations:
       separator = []
       for i in range(len(mutation_line)):
@@ -324,7 +330,7 @@ def interpretMutationsList(options):
       mutations.append( [code, chainID, label] )
       if code != None and code not in options.thermophiles:
         options.thermophiles.append(code)
-    
+
     # resetting the content of 'options.mutations to new list
     options.mutations = mutations
 
@@ -713,7 +719,7 @@ def extractResidueType(labels, restype=None, sort=False):
     """
     extracts all labels, e.g. 'HIS', from labels list (used in protein.compareWithExperiment)
     """
-    
+
     # extracting residue types
     if restype == None or restype == "ALL":
       extracted = labels
@@ -751,7 +757,7 @@ def examineNeighbours(file, protein):
         center = [residue.x, residue.y, residue.z]
         distance, f_angle, nada = calculateAngleFactor(None, atom2, atom3, center)
         if distance <  6.0 and f_angle > 0.001:
-          value = 1.0-(distance-3.0)/(6.0-3.0)
+          value = 1.0-old_div((distance-3.0),(6.0-3.0))
           dpKa += 1.2*min(1.0, value)
 
       str = "%6.2lf %6.2lf" % (experimental[residue.label]-residue.pKa_mod, dpKa)
@@ -762,7 +768,7 @@ def int2roman(number):
     numerals = { 1 : "I", 4 : "IV", 5 : "V", 9 : "IX", 10 : "X", 40 : "XL",
         50 : "L", 90 : "XC", 100 : "C", 400 : "CD", 500 : "D", 900 : "CM", 1000 : "M" }
     result = ""
-    for value, numeral in sorted(numerals.items(), reverse=True):
+    for value, numeral in sorted(list(numerals.items()), reverse=True):
         while number >= value:
             result += numeral
             number -= value
@@ -770,7 +776,7 @@ def int2roman(number):
     return  result
 
 
-class Mutator:
+class Mutator(object):
     """
       mutator object, contains information for mutator
     """
@@ -814,5 +820,3 @@ class Mutator:
           self.rtm   = rtm
         if iterations  != None:
           self.iterations   = iterations
-
-

@@ -39,11 +39,12 @@
 #-------------------------------------------------------------------------------------------------------
 
 
+from __future__ import absolute_import
 import string, re, sys, os, math
 
-import Source.lib as lib
-from Source.protein import Protein
- 
+from .Source import lib
+from .Source.protein import Protein
+
 
 
 def main():
@@ -57,7 +58,7 @@ def main():
     for pdbfile in pdbfiles:
         # creating protein object
         myProtein = Protein(pdbfile=pdbfile, options=options)
-       
+
         # calculating pKa values for ionizable residues
         myProtein.calculatePKA(options=options)
         # printing pka file
@@ -65,4 +66,3 @@ def main():
 
 
 if __name__ == '__main__': main()
-

@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+from builtins import range
+from builtins import object
 #
 # * This library is free software; you can redistribute it and/or
 # * modify it under the terms of the GNU Lesser General Public
@@ -37,7 +40,7 @@
 #   Journal of Chemical Theory and Computation, 7, 525-537 (2011)
 #-------------------------------------------------------------------------------------------------------
 import string, sys, copy
-import lib
+from . import lib
 pka_print = lib.pka_print
 
 excluded_resNames = ["H2O", "HOH", "SO4", "PO4", "PEG", "EPE", "NAG", "TRS"]
@@ -109,8 +112,8 @@ def readPDB(filename, file=None, verbose=True, tags = ["ATOM"]):
       for chainID in sorted( atoms.keys() ):
         for key in atoms[chainID]["keys"]:
           for atom in atoms[chainID][key]:
-            str = "%s%4d  %4s%3d%7s" % (atom.resName, atom.resNumb, atom.name, len(atom.configurations.keys()), atom.type)
-            for key in atom.configurations.keys():
+            str = "%s%4d  %4s%3d%7s" % (atom.resName, atom.resNumb, atom.name, len(list(atom.configurations.keys())), atom.type)
+            for key in list(atom.configurations.keys()):
               str += "%5s" % (key)
             pka_print(str)
 
@@ -317,7 +320,7 @@ def scanFileForConfigurations(file, tags=["ATOM"], options=None):
 
 
 
-class Atom:
+class Atom(object):
     """
       Atom class - contains all atom information found in the pdbfile
     """
@@ -361,7 +364,7 @@ class Atom:
             self.x += vector[0]
             self.y += vector[1]
             self.z += vector[2]
-            for key in self.configurations.keys():
+            for key in list(self.configurations.keys()):
               for i in range(3):
                 self.configurations[key][i] += vector[i]
 
@@ -405,14 +408,14 @@ class Atom:
               self.z = self.configurations[key][2]
             elif len(self.configurations) == 1:
               # get single key if only one configuration: saving back-bone protonation when previous residue doesn't have 'key'
-              for default_key in self.configurations.keys():
+              for default_key in list(self.configurations.keys()):
                 break
               self.x = self.configurations[default_key][0]
               self.y = self.configurations[default_key][1]
               self.z = self.configurations[default_key][2]
             elif True:
               # get single key if only one configuration: saving back-bone protonation when previous residue doesn't have 'key'
-              for default_key in self.configurations.keys():
+              for default_key in list(self.configurations.keys()):
                 if key[:-2] == default_key[:-2]:
                   break
               self.x = self.configurations[default_key][0]
@@ -421,7 +424,7 @@ class Atom:
             else:
               resLabel = "%-3s%4d%2s" % (self.resName, self.resNumb, self.chainID)
               keys = ""
-              for item in self.configurations.keys(): keys += "%5s" % (item)
+              for item in list(self.configurations.keys()): keys += "%5s" % (item)
               pka_print("configuration '%s' not found in '%s' atom '%s' [%s]" % (key, resLabel, self.name, keys))
               sys.exit(8)
 

@@ -38,13 +38,14 @@
 #   Journal of Chemical Theory and Computation, 7, 525-537 (2011)
 #-------------------------------------------------------------------------------------------------------
 
+from __future__ import absolute_import
 import string, re, sys, os, math
 
-import Source.lib as lib
-import Source.mutate as mutate
-from Source.protein import Protein
-from Source.pdb import readPDB
-import Source.version as propka
+from .Source import lib
+from .Source import mutate
+from .Source.protein import Protein
+from .Source.pdb import readPDB
+from .Source import version as propka
 pka_print = lib.pka_print
 
 
@@ -84,4 +85,3 @@ def main():
 
 
 if __name__ == '__main__': main()
-

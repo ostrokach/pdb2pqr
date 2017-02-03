@@ -1,3 +1,7 @@
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
+from past.utils import old_div
 #
 # * This library is free software; you can redistribute it and/or
 # * modify it under the terms of the GNU Lesser General Public
@@ -39,7 +43,7 @@
 
 import math
 #import data
-from Source.lib import pka_print
+from .Source.lib import pka_print
 
 if False:
     def compareWithExperiment(protein, file=None, list=None, set=None, label="ALL", **argv):
@@ -83,7 +87,7 @@ def makeErrorPlot(points, filename=None):
     for point in points:
       abs_diff = abs(point)
       i = 0
-      while abs_diff > float(i)/100.0 and i < 301:
+      while abs_diff > old_div(float(i),100.0) and i < 301:
         error_list[i] += 1.0
         i += 1
 
@@ -91,8 +95,8 @@ def makeErrorPlot(points, filename=None):
 
     # print/write out error fraction
     for i in range(len(error_list)):
-      error = float(i)/100.0
-      fraction = error_list[i]/number_of_points
+      error = old_div(float(i),100.0)
+      fraction = old_div(error_list[i],number_of_points)
       str = "%6.2lf%6.3lf" % (error, fraction)
       if filename == None:
         pka_print(str)
@@ -111,7 +115,7 @@ def calculateMUE(points):
     abs_sum = 0.00
     for point in points:
         abs_sum += abs(point)
-    mue  = abs_sum/number_of_points
+    mue  = old_div(abs_sum,number_of_points)
 
     pka_print("mue  =     %6.4lf" % (mue))
 
@@ -124,7 +128,7 @@ def calculateRMSD(points):
     sqr_sum = 0.00
     for point in points:
         sqr_sum += pow(point, 2)
-    rmsd = pow(sqr_sum/number_of_points, 0.5)
+    rmsd = pow(old_div(sqr_sum,number_of_points), 0.5)
 
     pka_print("rmsd =     %6.4lf (%d)" % (rmsd, number_of_points))
 
@@ -138,7 +142,7 @@ def calculateShift(points):
     for pH, experiment, calculation in points:
       sum_diff += experiment - calculation
 
-    return  sum_diff/number_of_points
+    return  old_div(sum_diff,number_of_points)
 
 
 def printDesolvationDistances(protein):
@@ -158,7 +162,7 @@ def printDesolvationDistances(protein):
           test_distance = math.sqrt(dX*dX + dY*dY + dZ*dZ)
           if residue.label in ["THR  62 A", "VAL  23 A", "LEU  14 A", "VAL  99 A", "ILE  92 A", "LEU  36 A"]:
             if atom.element == "C" and atom.name not in ["C", "CA"]:
-              contribution = enumerator/pow(test_distance, 4)
+              contribution = old_div(enumerator,pow(test_distance, 4))
               sum += contribution
               pka_print("%s  %-3s %6.2lf %6.2lf" % (residue.label, atom.name, test_distance, contribution))
           if test_distance < distance and atom.element == "C":
@@ -187,9 +191,9 @@ def regression(points):
       sum_xy += x*y
       sum_yy += y*y
 
-    slope       = (number_of_points*sum_xy - sum_x*sum_y) / (number_of_points*sum_xx - sum_x*sum_x)
-    intercept   = (sum_y*sum_xx - sum_x*sum_xy) / (number_of_points*sum_xx - sum_x*sum_x)
-    correlation = (number_of_points*sum_xy - sum_x*sum_y) / math.sqrt((number_of_points*sum_xx - sum_x*sum_x)*(number_of_points*sum_yy - sum_y*sum_y))
+    slope       = old_div((number_of_points*sum_xy - sum_x*sum_y), (number_of_points*sum_xx - sum_x*sum_x))
+    intercept   = old_div((sum_y*sum_xx - sum_x*sum_xy), (number_of_points*sum_xx - sum_x*sum_x))
+    correlation = old_div((number_of_points*sum_xy - sum_x*sum_y), math.sqrt((number_of_points*sum_xx - sum_x*sum_x)*(number_of_points*sum_yy - sum_y*sum_y)))
 
     pka_print("%6.2lf + %8.4lf*x, r=%6.3lf" % (intercept, slope, correlation))
 

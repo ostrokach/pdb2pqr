@@ -1,3 +1,8 @@
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
+from builtins import object
+from past.utils import old_div
 #
 # * This library is free software; you can redistribute it and/or
 # * modify it under the terms of the GNU Lesser General Public
@@ -37,11 +42,11 @@
 #   Journal of Chemical Theory and Computation, 7, 525-537 (2011)
 #-------------------------------------------------------------------------------------------------------
 import math, sys
-import lib
+from . import lib
 pka_print = lib.pka_print
 
 
-class vector:
+class vector(object):
     """ Vector """
     def __init__(self, xi=0.0, yi=0.0, zi=0.0, atom1 = 0, atom2 = 0):
         self.x = xi
@@ -139,14 +144,14 @@ class vector:
 
     def rescale(self, new_length):
         """ Rescale vector to new length while preserving direction """
-        frac = new_length/(self.length())
+        frac = old_div(new_length,(self.length()))
         res = vector(xi = self.x*frac,
                      yi = self.y*frac,
                      zi = self.z*frac)
         return res
 
 
-class matrix4x4:
+class matrix4x4(object):
     def __init__(self,
                  a11i=0.0, a12i=0.0, a13i=0.0, a14i=0.0,
                  a21i=0.0, a22i=0.0, a23i=0.0, a24i=0.0,
@@ -184,7 +189,7 @@ class matrix4x4:
 
 def angle(a, b):
     dot = a * b
-    return math.acos(dot / (a.length() * b.length()))
+    return math.acos(old_div(dot, (a.length() * b.length())))
 
 
 def angle_degrees(a,b):
@@ -214,9 +219,9 @@ def rotate_vector_around_an_axis(theta, axis, v):
         gamma = 0.0
         if axis.y != 0:
             if axis.x != 0:
-                gamma = -axis.x/abs(axis.x)*math.asin(axis.y/(math.sqrt(axis.x*axis.x + axis.y*axis.y)))
+                gamma = -axis.x/abs(axis.x)*math.asin(old_div(axis.y,(math.sqrt(axis.x*axis.x + axis.y*axis.y))))
             else:
-                gamma = math.pi/2.0
+                gamma = old_div(math.pi,2.0)
 
             Rz = rotate_atoms_around_z_axis(gamma)
             v = Rz * v
@@ -225,7 +230,7 @@ def rotate_vector_around_an_axis(theta, axis, v):
         #print "# 2. rotate space about the y-axis so that the rotation axis lies along the z-axis"
         beta = 0.0
         if axis.x != 0:
-            beta = -axis.x/abs(axis.x)*math.acos(axis.z/math.sqrt(axis.x*axis.x + axis.z*axis.z))
+            beta = -axis.x/abs(axis.x)*math.acos(old_div(axis.z,math.sqrt(axis.x*axis.x + axis.z*axis.z)))
             Ry = rotate_atoms_around_y_axis(beta)
             v = Ry * v
             axis = Ry *axis
@@ -268,16 +273,16 @@ def rotate_atoms_around_y_axis(angle):
 
 
 
-class multi_vector:
+class multi_vector(object):
     def __init__(self, atom1=0, atom2=0):
         self.vectors = []
         self.keys = []
 
         # store vectors for all configurations of atoms
         if atom1!=0:
-            self.keys = lib.get_sorted_configurations(atom1.configurations.keys())
+            self.keys = lib.get_sorted_configurations(list(atom1.configurations.keys()))
             if atom2!=0:
-                keys2 = lib.get_sorted_configurations(atom2.configurations.keys())
+                keys2 = lib.get_sorted_configurations(list(atom2.configurations.keys()))
                 if self.keys != keys2:
                     pka_print("ERROR: Inequivalent configurations for atoms, please correct your pdbfile to single configuration")
                     pka_print("%s\n%s" % (atom1, atom2))

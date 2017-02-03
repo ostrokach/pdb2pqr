@@ -39,12 +39,17 @@
 #-------------------------------------------------------------------------------------------------------
 
 
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import  sys, math
-from vector_algebra import *
-import bonds as bonds
-import pdb as pdb
+from .vector_algebra import *
+from . import bonds as bonds
+from . import pdb as pdb
 
-from lib import pka_print
+from .lib import pka_print
 
 
 def makeProtonator(scheme=None):
@@ -59,7 +64,7 @@ def makeProtonator(scheme=None):
 
 
 
-class old_scheme:
+class old_scheme(object):
     """ 
     Protonates a protein using the old propka2-scheme
     """
@@ -201,7 +206,7 @@ class old_scheme:
         X1, X2, X3 = atoms
         H  = X1.makeCopy(name=name, element='H')
 
-        for key in H.configurations.keys():
+        for key in list(H.configurations.keys()):
           for atom in [H, X1, X2, X3]:
             atom.setConfiguration(key)
 
@@ -209,9 +214,9 @@ class old_scheme:
           dY = (X3.y - X2.y)
           dZ = (X3.z - X2.z)
           length = math.sqrt( dX*dX + dY*dY + dZ*dZ )
-          H.x += dX/length
-          H.y += dY/length
-          H.z += dZ/length
+          H.x += old_div(dX,length)
+          H.y += old_div(dY,length)
+          H.z += old_div(dZ,length)
 
           H.setConfigurationPosition(key)
 
@@ -227,7 +232,7 @@ class old_scheme:
         X1, X2, X3 = atoms
         H  = X1.makeCopy(name=name, element='H')
 
-        for key in H.configurations.keys():
+        for key in list(H.configurations.keys()):
           for atom in [H, X1, X2, X3]:
             atom.setConfiguration(key)
 
@@ -236,9 +241,9 @@ class old_scheme:
           dZ = (X3.z + X1.z)*0.5 - X2.z
 
           length = math.sqrt( dX*dX + dY*dY + dZ*dZ )
-          H.x += dX/length
-          H.y += dY/length
-          H.z += dZ/length
+          H.x += old_div(dX,length)
+          H.y += old_div(dY,length)
+          H.z += old_div(dZ,length)
 
           H.setConfigurationPosition(key)
 
@@ -253,7 +258,7 @@ class old_scheme:
         X1, X2, X3 = atoms
         H  = X2.makeCopy(name=name, element='H')
 
-        for key in H.configurations.keys():
+        for key in list(H.configurations.keys()):
           for atom in [H, X1, X2, X3]:
             atom.setConfiguration(key)
 
@@ -261,9 +266,9 @@ class old_scheme:
           dY = (X1.y + X3.y)*0.5 - X2.y
           dZ = (X1.z + X3.z)*0.5 - X2.z
           length = math.sqrt( dX*dX + dY*dY + dZ*dZ )
-          H.x -= dX/length
-          H.y -= dY/length
-          H.z -= dZ/length
+          H.x -= old_div(dX,length)
+          H.y -= old_div(dY,length)
+          H.z -= old_div(dZ,length)
 
           H.setConfigurationPosition(key)
 
@@ -274,7 +279,7 @@ class old_scheme:
 
 
 
-class new_scheme:
+class new_scheme(object):
     """
     Protonate atoms according to VSEPR theory 
     """
@@ -551,7 +556,7 @@ class new_scheme:
         #pka_print('%65s: %4.1f'%('Charge(-)',atom.charge))
         atom.steric_number -= atom.charge
         
-        atom.steric_number = math.floor(atom.steric_number/2.0)
+        atom.steric_number = math.floor(old_div(atom.steric_number,2.0))
 
         atom.number_of_lone_pairs = atom.steric_number - len(atom.bonded_atoms) - atom.number_of_protons_to_add
 

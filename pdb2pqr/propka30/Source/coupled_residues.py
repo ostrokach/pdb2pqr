@@ -1,3 +1,8 @@
+from __future__ import division
+from __future__ import absolute_import
+from builtins import str
+from builtins import range
+from past.utils import old_div
 #
 # * This library is free software; you can redistribute it and/or
 # * modify it under the terms of the GNU Lesser General Public
@@ -38,7 +43,7 @@
 #-------------------------------------------------------------------------------------------------------
 
 import math
-from lib import pka_print
+from .lib import pka_print
 
 max_intrinsic_pKa_diff = 2.0
 min_interaction_energy = 0.5
@@ -161,7 +166,7 @@ def get_pka_diff_factor(pka1, pka2):
     intrinsic_pka_diff = abs(pka1-pka2)
     res = 0.0
     if intrinsic_pka_diff <= max_intrinsic_pKa_diff:
-        res = 1-(intrinsic_pka_diff/max_intrinsic_pKa_diff)**2
+        res = 1-(old_div(intrinsic_pka_diff,max_intrinsic_pKa_diff))**2
 
     return res
 
@@ -169,14 +174,14 @@ def get_free_energy_diff_factor(energy1, energy2):
     free_energy_diff = abs(energy1-energy2)
     res = 0.0
     if free_energy_diff <= max_free_energy_diff:
-        res = 1-(free_energy_diff/max_free_energy_diff)**2
+        res = 1-(old_div(free_energy_diff,max_free_energy_diff))**2
     return res
 
 def get_interaction_factor(interaction_energy):
     res = 0.0
     interaction_energy = abs(interaction_energy)
     if interaction_energy >= min_interaction_energy:
-        res = (interaction_energy-min_interaction_energy)/(1.0+interaction_energy-min_interaction_energy)
+        res = old_div((interaction_energy-min_interaction_energy),(1.0+interaction_energy-min_interaction_energy))
 
     return res
 

@@ -39,8 +39,12 @@
 #-------------------------------------------------------------------------------------------------------
 
  
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
+from past.utils import old_div
 import string, sys, copy, math
-from Source.lib import pka_print
+from .Source.lib import pka_print
 
 
 def getCatchAllCompareWithExperiment(argv):
@@ -338,15 +342,15 @@ def makeErrorPlot(points):
     for point in points:
       abs_diff = abs(point)
       i = 0
-      while abs_diff > float(i)/10.0 and i < 41:
+      while abs_diff > old_div(float(i),10.0) and i < 41:
         error_list[i] += 1.0
         i += 1
 
     number_of_points = float(len(points))
 
     for i in range(0, 41):
-      error = float(i)/10.0
-      fraction = error_list[i]/number_of_points
+      error = old_div(float(i),10.0)
+      fraction = old_div(error_list[i],number_of_points)
       pka_print("%6.2lf%6.2lf" % (error, fraction))
 
 

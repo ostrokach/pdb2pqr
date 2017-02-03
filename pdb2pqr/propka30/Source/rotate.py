@@ -39,8 +39,12 @@
 #-------------------------------------------------------------------------------------------------------
 
 
+from __future__ import division
+from __future__ import absolute_import
+from builtins import range
+from past.utils import old_div
 import math, os, sys, random
-from lib import pka_print
+from .lib import pka_print
 
 
 def generateCorrespondingAtoms():
@@ -64,9 +68,9 @@ def generalRotationMatrix(axis, theta):
     cos = math.cos(theta)
     sin = math.sin(theta)
     length = math.sqrt(axis[0]*axis[0] + axis[1]*axis[1] + axis[2]*axis[2])
-    Ux = axis[0]/length
-    Uy = axis[1]/length
-    Uz = axis[2]/length
+    Ux = old_div(axis[0],length)
+    Uy = old_div(axis[1],length)
+    Uz = old_div(axis[2],length)
     R = [[0., 0., 0.], [0., 0., 0.], [0., 0., 0.]]
     #
     # rotation matrix, x-component
@@ -183,7 +187,7 @@ def translatePosition(position, translation):
     """
     translates the position according to 'translation'
     """
-    for key in position.keys():
+    for key in list(position.keys()):
       for i in range(3):
         position[key][i] += translation[i]
 
@@ -197,10 +201,10 @@ def rotatePosition(position, axis, theta, center=None):
       center = sorted(position.keys())
     for key in center:
       for i in range(3):
-        translate[i] += position[key][i]/len(center)
+        translate[i] += old_div(position[key][i],len(center))
 
     # translate to rotation center
-    for key in position.keys():
+    for key in list(position.keys()):
       for i in range(3):
         position[key][i] -= translate[i]
 
@@ -209,7 +213,7 @@ def rotatePosition(position, axis, theta, center=None):
 
     # do the actual rotation
     new_position = [None, None, None]
-    for key in position.keys():
+    for key in list(position.keys()):
       # rotate
       for xyz in range(3):
         new_position[xyz] = translate[xyz]
@@ -244,7 +248,7 @@ def rotateAtoms(atoms, axis, theta, center=None):
         translate[2] += atom.z
     for atom in atoms:
       for i in range(3):
-        translate[i] = translate[i]/number_of_atoms
+        translate[i] = old_div(translate[i],number_of_atoms)
 
     # translate to rotation center
     for atom in atoms:
@@ -270,7 +274,7 @@ def rotateAtoms(atoms, axis, theta, center=None):
       atom.z = new_position[2]
 
       # rotate configuration
-      for key in atom.configurations.keys():
+      for key in list(atom.configurations.keys()):
         for xyz in range(3):
           new_position[xyz] = translate[xyz]
           for i in range(3):
