@@ -43,22 +43,20 @@
 	OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
+from __future__ import absolute_import
+
+import time
+from optparse import OptionGroup, OptionParser
+
+from pdb2pqr import extensions
+from pdb2pqr.src import utilities
+from pdb2pqr.src.errors import PDB2PQRError
+from pdb2pqr.src.hydrogens import *
 
 __date__  = "5 April 2010"
 __author__ = "Todd Dolinsky, Nathan Baker, Jens Nielsen, Paul Czodrowski, Jan Jensen, Samir Unni, Yong Huang"
-
-from optparse import OptionParser, OptionGroup
-
-import time
-
-from .src import utilities
-from .src.errors import PDB2PQRError
-from .src.hydrogens import *
-
-
 __version__ = "FIXME"
 
-from . import extensions
 
 def getOldHeader(pdblist):
     oldHeader = StringIO()
