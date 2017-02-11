@@ -3,6 +3,8 @@ Import('pdb2pqr')
 import sys
 import os
 
+env.Append(ENV={'PATH': os.environ['PATH']})
+
 def setupTest(testName, testRunBuilder, valRunBuilders):
 	if GetOption("clean"):
 	    env.Default(testRunBuilder)
@@ -20,7 +22,7 @@ def setupTest(testName, testRunBuilder, valRunBuilders):
 
 	return testAliasObj
 
-commandLineStart = os.environ['PYTHON'] + ' -m pdb2pqr'
+commandLineStart = 'pdb2pqr_cli'
 
 Export('setupTest')
 

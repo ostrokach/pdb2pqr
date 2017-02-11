@@ -13,7 +13,8 @@ class build_py(build_py):
         for file in files:
             if file.endswith('.py'):
                 tmp = os.path.split(file)
-                if tmp[0] == "build/lib/pdb2pqr" and not tmp[1] in ['__init__.py', 'main.py']:
+                if tmp[0] == "build/lib/pdb2pqr" and not tmp[1] in [
+                        '__init__.py', 'main.py', 'pka.py']:
                     print(file + "<--- DELETED")
                     os.unlink(file)
                 if tmp[0] == "build/lib/pdb2pqr/pdb2pka":
@@ -21,20 +22,25 @@ class build_py(build_py):
                     os.unlink(file)
 
 
-setup(name='pdb2pqr',
-      version='2.1.2a9',
-      url='http://www.poissonboltzmann.org/',
-      description="PDB2PQR: an automated pipeline for the setup of Poisson-Boltzmann electrostatics calculations",
-      long_description=read("pdb2pqr/README.md"),
-      license="BSD",
-      packages=['pdb2pqr',
-                'pdb2pqr.src',
-                'pdb2pqr.pdb2pka',
-                'pdb2pqr.propka30',
-                'pdb2pqr.propka30.Source',
-                'pdb2pqr.extensions'
-                ],
-      package_data={'pdb2pqr': ['dat/*', 'NEWS', 'README.md', 'COPYING', 'AUTHORS']},
-      cmdclass=dict(build_py=build_py),
-      scripts=["pdb2pqr_cli"]
-      )
+setup(
+    name='pdb2pqr',
+    version='2.1.2a9',
+    url='http://www.poissonboltzmann.org/',
+    description="PDB2PQR: an automated pipeline for the setup of Poisson-Boltzmann electrostatics calculations",
+    long_description=read("pdb2pqr/README.md"),
+    license="BSD",
+    packages=[
+        'pdb2pqr',
+        'pdb2pqr.src',
+        'pdb2pqr.pdb2pka',
+        'pdb2pqr.propka30',
+        'pdb2pqr.propka30.Source',
+        'pdb2pqr.extensions'
+    ],
+    package_data={
+        'pdb2pqr': ['dat/*', 'NEWS', 'README.md', 'COPYING', 'AUTHORS'],
+        'pdb2pqr.propka30.Source': ['ions.list', 'protein_bonds.dat'],
+    },
+    cmdclass=dict(build_py=build_py),
+    scripts=["pdb2pqr_cli"],
+)

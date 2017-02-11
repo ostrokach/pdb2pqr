@@ -384,9 +384,9 @@ def residueInteractionList(grpName):
         sys.exit(0)
 
     if len(residue_list) == 0:
-        return  string.split(str)
+        return str.split(residue_list)
     else:
-        return  residue_list
+        return residue_list
 
 
 def residueCenterAtomList(resName):

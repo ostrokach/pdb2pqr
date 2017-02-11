@@ -10,15 +10,15 @@
 __date__ = "17 February 2006" # Date
 __author__ = "Todd Dolinsky"  # Author
 
-from src.utilities import *   # Functions from utilities.py
-from src.routines import *    # Functions from routines.py
+from pdb2pqr.src.utilities import *   # Functions from utilities.py
+from pdb2pqr.src.routines import *    # Functions from routines.py
 
 def usage():
     """
         A small function that will be added to the overall PDB2PQR
         usage.  Note that the root of the file name (in this case template.py)
         becomes the command line option.
-        
+
         ex. chi.py will add the --chi command line option.
 
         Returns a string describing the usage for this function.
@@ -27,15 +27,15 @@ def usage():
     """
     str = "Put usage here"
     return str
-    
+
 def addExtensionOptions(extensionGroup):
 	"""
 		Add options specific to this extension to the option parser.
 		This function is optional.
-		
+
 		extensionGroup: A link to the OptionParser group object for extension
 						options. See the Python OptionParser documentation.
-						
+
 						Option names must not conflict with other option names.
 	"""
 	extensionGroup.add_option('--Ni', dest='Ni', action='store_true', default=False,
@@ -55,12 +55,12 @@ def run_extension(routines, outroot, options):
                        contains both protein (routines.protein) and links
                        to the majority of functions necessary to use the
                        PDB2PQR API.
-            outroot:   A string containing the root of the output name.  If 
+            outroot:   A string containing the root of the output name.  If
                        you want to return information to stdout this can be
                        ignored (although it must still be present) - otherwise
                        this can be used to output the desired data to a file.
                        The root contains whatever the desired PQR file name is
-                       before the period, so "out.pqr" will have "out", and 
+                       before the period, so "out.pqr" will have "out", and
                        "example" will just return "example".  For other
                        extension scripts we have appended the function name
                        to the outroot.
@@ -80,5 +80,3 @@ def run_extension(routines, outroot, options):
         if atom.name == "CA":  file.write(atom)
 
     file.close()
-
-

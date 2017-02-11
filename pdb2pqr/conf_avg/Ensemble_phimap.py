@@ -30,16 +30,16 @@ import math
 import string
 import getopt
 import time
-from src.pdb import *
-from src.utilities import *
-from src.structures import *
-from src.definitions import *
-from src.forcefield import *  
-from src.routines import *
-from src.protein import *
-from src.server import *
+from pdb2pqr.src.pdb import *
+from pdb2pqr.src.utilities import *
+from pdb2pqr.src.structures import *
+from pdb2pqr.src.definitions import *
+from pdb2pqr.src.forcefield import *
+from pdb2pqr.src.routines import *
+from pdb2pqr.src.protein import *
+from pdb2pqr.src.server import *
 from StringIO import *
-from src.hydrogens import *
+from pdb2pqr.src.hydrogens import *
 
 class conf_avg:
 
@@ -62,16 +62,16 @@ class conf_avg:
 		#
         avg_pots=self.average_potentials(potentials)
         return
-        
+
     #
     # ------
     #
-    
+
     def process_one_pdb(self,pdbfilename):
         """Do everything for one input file"""
         print "Working on: %s" %pdbfilename
         pdbfile = getPDBFile(pdbfilename)
-        
+
         if self.options.MD:
             #
             # Run an MD simulation for this PDB file and calculate potentials for all the snapshots
@@ -87,11 +87,11 @@ class conf_avg:
             pots=self.get_potentials(pdbfilename)
             potentials.append(pdbname)
         return potentials
-        
+
     #
     # ------
     #
-    
+
     def run_MD(self,pdbfilename):
         """Run an MD simulation and return a number of snapshots"""
         files=os.listdir(os.getcwd())
@@ -102,7 +102,7 @@ class conf_avg:
         G=Gclass.GROMACS(addfiles)
         #
         # Create Gromacs input file
-        # 
+        #
         pdbfile=os.path.split(pdbfilename)[1]
         G.pdb2gmx(pdbfile,forcefield=1,ignore_Hs=True,auto_select_his=True)
         #
@@ -126,15 +126,15 @@ class conf_avg:
         #
         filenames=G.get_snapshots(self.options.numsnapshots)
         return filenames
-        
-        
+
+
     def get_potentials(self,currentPDB):
 		"""Get the potentials by first running pdb2pqr and then apbs"""
 		myProtein,apbs_inputfile=self.run_pdb2pqr(currentPDB)
 		potentials=self.run_apbs(myProtein,apbs_inputfile)
 		return potentials
-        
-        
+
+
     def run_pdb2pqr(self,currentPDB):
         """Run pdb2pqr, prepare input for apbs"""
         pdbfile = getPDBFile(currentPDB)
@@ -164,8 +164,8 @@ class conf_avg:
         myProtein.reSerialize()
         #
         # Add and optimze hydrogens:
-        # 
-        from src.hydrogens import hydrogenRoutines
+        #
+        from pdb2pqr.src.hydrogens import hydrogenRoutines
         myRoutines.updateInternalBonds()
         myRoutines.calculateDihedralAngles()
         myhydRoutines = hydrogenRoutines(myRoutines)
@@ -210,15 +210,15 @@ class conf_avg:
 
 		apbs_inputfile=igen.printInput()
 		return myProtein, apbs_inputfile
-        
+
     def run_apbs(self,myProtein,apbs_inputfile):
 		"""runs apbs"""
-		import pdb2pka.apbs 
+		import pdb2pka.apbs
 		APBS=pdb2pka.apbs.runAPBS()
 		potentials = APBS.runAPBS(myProtein, apbs_inputfile)
 		APBS.cleanup()
 		return potentials
-        
+
     def average_potentials(self,potentials):
         """This function averages many potential maps"""
         avg_pots=[]
@@ -261,4 +261,3 @@ if __name__=='__main__':
     ff='parse'
 
     I=conf_avg(options)
-

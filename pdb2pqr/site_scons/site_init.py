@@ -18,7 +18,7 @@ from test_tools import (ComparePQRAction,
 # Taken from the SubstInFileBuilder on the SCons Wiki.
 # See http://www.scons.org/wiki/AutoconfRecipes
 
-# Also changed to use string.replace as using re.sub was a dumb idea if
+# Also changed to use str.replace as using re.sub was a dumb idea if
 # we are going to be replicating the behavior of autotools. Now using
 # re.sub is optional -KEM
 
@@ -157,7 +157,3 @@ ComparePROPKA = SCons.Action.ActionFactory( ComparePROPKAAction, CompareStringFu
 CompareTitCurves = SCons.Action.ActionFactory( CompareTitCurvesAction, CompareDirectoryFunc )
 
 CompilePython = SCons.Action.ActionFactory( CompilePythonAction, CompilePythonActionStringFunc )
-
-
-
-

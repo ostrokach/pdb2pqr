@@ -23,9 +23,9 @@ build:
     paths:
     - conda-bld
 
-.test_template: &test_definition  # Hidden key that defines an anchor named 'job_definition'
+.test_template: &test_job
   stage: test
-  script:
+  before_script:
     - conda config --append channels kimlab
     - cp -r ./conda-bld/* $CONDA_ROOT_DIR/conda-bld/
     - conda index $CONDA_ROOT_DIR/conda-bld/
@@ -36,28 +36,40 @@ build:
     - conda create -fyq -n scons python scons openssl readline ncurses
     - cd pdb2pqr
     - export PYTHON=$(which python)
-    - $CONDA_ROOT_DIR/envs/scons/bin/scons scons/scons.py $TEST_NAME
 
-test_local-test:
-  variables:
-    TEST_NAME: "local-test"
-  <<: *test_definition
+# Basic tests
+basic-test:
+  <<: *test_job
+  script:
+    $CONDA_ROOT_DIR/envs/scons/bin/scons scons/scons.py "basic-test"
 
-test_basic-test:
-  variables:
-    TEST_NAME: "basic-test"
-  <<: *test_definition
+local-test:
+  <<: *test_job
+  script:
+    $CONDA_ROOT_DIR/envs/scons/bin/scons scons/scons.py "local-test"
 
-test_pdb2pka-test:
-  variables:
-    TEST_NAME: "pdb2pka-test"
-  <<: *test_definition
+advanced-test:
+  <<: *test_job
+  script:
+    $CONDA_ROOT_DIR/envs/scons/bin/scons scons/scons.py "advanced-test"
 
-test_advanced-test:
-  variables:
-    TEST_NAME: "advanced-test"
-  <<: *test_definition
+# Complicated tests
+long-test:
+  <<: *test_job
+  script:
+    $CONDA_ROOT_DIR/envs/scons/bin/scons scons/scons.py "long-test"
 
+complete-test:
+  <<: *test_job
+  script:
+    $CONDA_ROOT_DIR/envs/scons/bin/scons scons/scons.py "complete-test"
+
+pdb2pka-test:
+  <<: *test_job
+  script:
+    $CONDA_ROOT_DIR/envs/scons/bin/scons scons/scons.py "pdb2pka-test"
+
+#
 deploy:
   stage: deploy
   script:

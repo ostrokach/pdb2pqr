@@ -11,9 +11,9 @@ import cgi
 import cgitb
 import os,shutil,glob,string,time,urllib
 from datetime import timedelta
-from src.server import *
-from src.aconf import *
-from src.utilities import getTrackingScriptString, getEventTrackingString
+from pdb2pqr.src.server import *
+from pdb2pqr.src.aconf import *
+from pdb2pqr.src.utilities import getTrackingScriptString, getEventTrackingString
 
 cgitb.enable()
 form = cgi.FieldStorage()

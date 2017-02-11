@@ -18,6 +18,7 @@ requirements:
     - propka
     - pdb2pka
     - future
+    - apbs
 
 test:
   files:

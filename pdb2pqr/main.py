@@ -756,8 +756,8 @@ Please cite your use of PDB2PQR as:
     outfile.close()
 
     if options.input:
-        from src import inputgen
-        from src import psize
+        from pdb2pqr.src import inputgen
+        from pdb2pqr.src import psize
         method = "mg-auto"
         size = psize.Psize()
         size.parseInput(outpath)

@@ -4,7 +4,7 @@ Import('setupTest')
 import sys
 import os
 
-commandLineStart = os.environ['PYTHON'] + ' -m pdb2pqr'
+commandLineStart = 'pdb2pqr_cli'
 testList = []
 
 #PDB2PKA Test

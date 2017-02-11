@@ -8,40 +8,40 @@
     residues of atoms.
 
     ----------------------------
-   
+
     PDB2PQR -- An automated pipeline for the setup, execution, and analysis of
     Poisson-Boltzmann electrostatics calculations
 
-    Copyright (c) 2002-2011, Jens Erik Nielsen, University College Dublin; 
-    Nathan A. Baker, Battelle Memorial Institute, Developed at the Pacific 
-    Northwest National Laboratory, operated by Battelle Memorial Institute, 
-    Pacific Northwest Division for the U.S. Department Energy.; 
+    Copyright (c) 2002-2011, Jens Erik Nielsen, University College Dublin;
+    Nathan A. Baker, Battelle Memorial Institute, Developed at the Pacific
+    Northwest National Laboratory, operated by Battelle Memorial Institute,
+    Pacific Northwest Division for the U.S. Department Energy.;
     Paul Czodrowski & Gerhard Klebe, University of Marburg.
 
 	All rights reserved.
 
-	Redistribution and use in source and binary forms, with or without modification, 
+	Redistribution and use in source and binary forms, with or without modification,
 	are permitted provided that the following conditions are met:
 
-		* Redistributions of source code must retain the above copyright notice, 
+		* Redistributions of source code must retain the above copyright notice,
 		  this list of conditions and the following disclaimer.
-		* Redistributions in binary form must reproduce the above copyright notice, 
-		  this list of conditions and the following disclaimer in the documentation 
+		* Redistributions in binary form must reproduce the above copyright notice,
+		  this list of conditions and the following disclaimer in the documentation
 		  and/or other materials provided with the distribution.
         * Neither the names of University College Dublin, Battelle Memorial Institute,
           Pacific Northwest National Laboratory, US Department of Energy, or University
           of Marburg nor the names of its contributors may be used to endorse or promote
           products derived from this software without specific prior written permission.
 
-	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-	IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-	INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
-	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-	LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
-	OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+	IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+	INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+	LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+	OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 	OF THE POSSIBILITY OF SUCH DAMAGE.
 
     ----------------------------
@@ -61,7 +61,7 @@ from .utilities import *
 from .errors import PDBInputError, PDBInternalError
 
 class ForcefieldHandler(sax.ContentHandler):
-   
+
     def __init__(self, map, reference):
         self.oldresname = None
         self.oldatomname = None
@@ -70,7 +70,7 @@ class ForcefieldHandler(sax.ContentHandler):
         self.newresname = None
         self.atommap = {}
         self.map = map
-        self.reference = reference           
+        self.reference = reference
 
     def updateMap(self, toname, fromname, map):
         """
@@ -91,8 +91,8 @@ class ForcefieldHandler(sax.ContentHandler):
                 map[toname].atoms[atomname] = fromobj.atoms[atomname]
         elif isinstance(fromobj, ForcefieldAtom):
             map[toname] = fromobj
-            
-                        
+
+
     def findMatchingNames(self, regname, map):
         """
             Find a list of strings that match the given regular
@@ -101,14 +101,14 @@ class ForcefieldHandler(sax.ContentHandler):
             Parameters
                 regname: The regular expression (string)
                 map:  The dictionary to search (dict)
-                
+
             Returns
                 list:  A list of regular expression objects that match
                        the regular expression.
         """
-        list = [] 
+        list = []
         regname += "$"
-     
+
         # Find the existing items that match this string
 
         for name in map:
@@ -117,14 +117,14 @@ class ForcefieldHandler(sax.ContentHandler):
                 list.append(regexp)
 
         return list
-   
+
     def startElement(self, name, attributes):
         """
             Override the startElement function to keep track of the current
             element.
         """
         if name != "name": self.curelement = name
-            
+
     def endElement(self, name):
         """
             At the end of the element, act on the stored information.
@@ -134,7 +134,7 @@ class ForcefieldHandler(sax.ContentHandler):
         """
         if name == "residue":
             if self.oldresname != None:  # Make a new residue hook
-              
+
                 newreslist = self.findMatchingNames(self.newresname, self.reference)
                 if self.oldresname.find("$group") >= 0:  # Multiple new residues
                     for resitem in newreslist:
@@ -143,7 +143,7 @@ class ForcefieldHandler(sax.ContentHandler):
                         fromname = self.oldresname.replace("$group", group)
                         if fromname in self.map:
                             self.updateMap(resname, fromname, self.map)
-                              
+
                 else: # Work with a single new residue name
                     oldreslist = self.findMatchingNames(self.oldresname, self.map)
                     for resitem in newreslist:
@@ -151,29 +151,29 @@ class ForcefieldHandler(sax.ContentHandler):
                         self.updateMap(resname, self.oldresname, self.map)
 
             # If this was only a residue conversion, exit
-                
+
             if self.atommap == {}:
                 self.oldresname = None
                 self.newresname = None
                 return
 
             # Apply atom conversions for all appropriate residues
-           
+
             resmatchlist = self.findMatchingNames(self.newresname, self.map)
             for resitem in resmatchlist:
-                residue = self.map[resitem.string]        
-                for newname in self.atommap:        
+                residue = self.map[resitem.string]
+                for newname in self.atommap:
                     oldname = self.atommap[newname]
                     if oldname not in residue.atoms: continue
                     self.updateMap(newname, oldname, residue.atoms)
-                    
+
             # Clean up
 
             self.oldresname = None
             self.newresname = None
             self.atommap = {}
-            
-        elif name == "atom": 
+
+        elif name == "atom":
 
             self.atommap[self.newatomname] = self.oldatomname
             self.oldatomname = None
@@ -192,16 +192,16 @@ class ForcefieldHandler(sax.ContentHandler):
                 text:  The text value between the XML tags
         """
         if text.isspace(): return
-        text = str(text)   
+        text = str(text)
         if self.curelement == "residue":
-            self.newresname = text       
+            self.newresname = text
         elif self.curelement == "atom":
-            self.newatomname = text      
+            self.newatomname = text
         elif self.curelement == "useatomname":
-            self.oldatomname = text    
+            self.oldatomname = text
         elif self.curelement == "useresname":
             self.oldresname = text
-     
+
 class Forcefield:
     """
         Forcefield class
@@ -215,7 +215,7 @@ class Forcefield:
 
     """
     #TODO: pass ff and ff names file like objects instead of sorting out whether
-    #to use user created files here. 
+    #to use user created files here.
     def __init__(self, ff, definition, userff, usernames = None):
         """
             Initialize the class by parsing the definition file
@@ -234,29 +234,29 @@ class Forcefield:
             defpath = getFFfile(ff)
             if defpath == "":
                 raise PDBInputError("Unable to find forcefield parameter file %s!" % self.name)
-          
+
             file = open(defpath, 'rU')
 
-        else: 
+        else:
             file = userff
 
         lines = file.readlines()
         for line in lines:
             if not line.startswith("#"):
                 fields = line.split()
-                if fields == []: continue  
+                if fields == []: continue
                 try:
                     resname = fields[0]
                     atomname = fields[1]
                     charge = float(fields[2])
                     radius = float(fields[3])
                 except ValueError:
-                    txt = "Unable to recognize user-defined forcefield file" 
+                    txt = "Unable to recognize user-defined forcefield file"
                     if defpath != "": txt += " %s!" % defpath
                     else: txt += "!"
                     txt += " Please use a valid parameter file."
                     raise PDBInputError(txt)
-            
+
                 try:
                     group = fields[4]
                     atom = ForcefieldAtom(atomname, charge, radius, resname, group)
@@ -273,11 +273,11 @@ class Forcefield:
 
         # Now parse the XML file, associating with FF objects -
         # This is not necessary (if canonical names match ff names)
- 
+
 
         defpath = getNamesFile(ff)
         if defpath != "":
-        
+
             handler = ForcefieldHandler(self.map, definition.map)
             sax.make_parser()
 
@@ -288,12 +288,12 @@ class Forcefield:
                 namesfile = open(defpath)
                 sax.parseString(namesfile.read().encode('utf-8'), handler)
             namesfile.close()
-        else: 
+        else:
             handler = ForcefieldHandler(self.map, definition.map)
             sax.make_parser()
 
             if usernames != None:
-                namesfile = usernames            
+                namesfile = usernames
                 sax.parseString(namesfile.read(), handler)
             else:
                 raise PDBInputError("Please provide a valid .names file!")
@@ -325,7 +325,7 @@ class Forcefield:
         if self.hasResidue(resname): return self.map[resname]
         else: return None
 
-   
+
     def getNames(self, resname, atomname):
         """
             Get the actual names associated with the input fields.
@@ -354,7 +354,7 @@ class Forcefield:
         """
             Get the group/type associated with the input
             fields.  If not found, return a null string.
-            
+
             Parameters:
                 resname:  The residue name (string)
                 atomname: The atom name (string)
@@ -392,7 +392,7 @@ class Forcefield:
                 atom = resid.atoms[atomname]
                 charge = atom.charge
                 radius = atom.radius
-                
+
         return charge, radius
 
     def getParams1(self, residue, name):
@@ -454,9 +454,9 @@ class Forcefield:
             resname = residue.get("naname")
         else:
             resname = residue.get("name")
-        
+
         # Residue Substitutions
-            
+
         if residue.get("name") == "CYS" and "HG" not in residue.get("map"):
             resname = "CYX"
         elif residue.get("name") == "HIS":
@@ -488,14 +488,14 @@ class Forcefield:
                 elif atomname == "OD1": atomname = "OD2"
                 elif atomname == "OD2": atomname = "OD1"
             elif "HD2" in residue.get("map"): resname = "ASH"
-               
+
         if residue.get("isCterm"):
             resname = "C" + resname
         elif residue.get("isNterm"):
             resname = "N" + resname
 
         # Atom Substitutions
-  
+
         if resname == "WAT":
             if atomname == "O": atomname = "OW"
             elif atomname == "H1": atomname = "HW"
@@ -509,7 +509,7 @@ class Forcefield:
         if residue.get("isNterm") and resname == "NPRO" and atomname == "HN2":
             atomname = "H2"
         if residue.get("isNterm") and resname == "NPRO" and atomname == "HN1":
-            atomname = "H3"   
+            atomname = "H3"
         return resname, atomname
 
     def getParseParams(self, residue, name):
@@ -602,7 +602,7 @@ class Forcefield:
             if atomname == "HH31": atomname = "HA1"
             elif atomname == "HH32": atomname = "HA2"
             elif atomname == "HH33": atomname = "HA3"
-            elif atomname == "CH3": atomname = "CA"    
+            elif atomname == "CH3": atomname = "CA"
         elif resname == "TYR":
             if not "HH" in residue.get("map"):
                 resname="TYM"
@@ -623,7 +623,7 @@ class Forcefield:
             if atomname == "CH3": atomname = "CA"
             elif atomname == "H": atomname = "H1"
             elif atomname.startswith("HH"): atomname = "HA" + atomname[-1]
-        
+
         # Hydrogen Substitutions
 
         if atomname == "H": atomname = "HN"
@@ -657,7 +657,7 @@ class Forcefield:
         atomname = name
 
         #  Nucleic Acid Substitutions
-        
+
         if residue.get("type") == 4:
             resname = resname[0]
             if resname == "A": resname = "ADE"
@@ -668,14 +668,14 @@ class Forcefield:
                 if atomname == "C7": atomname = "C5M"
                 elif atomname == "H71": atomname = "H51"
                 elif atomname == "H72": atomname = "H52"
-                elif atomname == "H73": atomname = "H53" 
+                elif atomname == "H73": atomname = "H53"
             elif resname == "U": resname = "URA"
 
             if atomname == "H5'1": atomname = "H5'"
             elif atomname == "H5'2": atomname = "H5''"
             elif atomname == "H2'1": atomname = "H2'"
             elif atomname in ["H2'2","HO'2"]: atomname = "H2''"
-            
+
             if residue.getAtom("O2'") == None:
                 if atomname in ["C2'","H2'","H2''"]: resname = "DEO1"
 
@@ -683,7 +683,7 @@ class Forcefield:
                 if atomname in ["H5T","O5'","C5'"]: resname = "5TER"
             if residue.getAtom("H3T") != None:
                 if atomname in ["H3T","O3'","C3'"]: resname = "3TER"
-                
+
         # Terminal/Water Substitutions
 
         if residue.get("isNterm"):
@@ -708,7 +708,7 @@ class Forcefield:
                     resname = "NTER"
                     if atomname == "H": atomname = "HT1"
                     elif atomname == "H2": atomname = "HT2"
-                    elif atomname == "H3": atomname = "HT3"               
+                    elif atomname == "H3": atomname = "HT3"
         elif residue.get("isCterm"):
             if atomname in ["O","OXT","C"]:
                 resname = "CTER"
@@ -721,7 +721,7 @@ class Forcefield:
             if atomname == "O": atomname = "OH2"
 
         # Residue substitutions
-            
+
         if resname == "ILE":
             if atomname == "CD1": atomname = "CD"
             elif atomname == "HD11": atomname = "HD1"
@@ -776,7 +776,7 @@ class Forcefield:
             elif atomname == "C": atomname = "CY"
             elif atomname == "O": atomname = "OY"
         elif resname == "ADP":
-            atomname = string.replace(atomname,"*","\'")
+            atomname = str.replace(atomname,"*","\'")
         elif resname == "NME":
             resname = "CT3"
             if atomname == "HH31": atomname = "HT1"
@@ -785,7 +785,7 @@ class Forcefield:
             elif atomname == "CH3": atomname = "CAT"
             elif atomname == "N": atomname = "NT"
             elif atomname == "H": atomname = "HNT"
-            
+
         # Hydrogen Substitutions
 
         if atomname == "H": atomname = "HN"
@@ -868,7 +868,7 @@ class ForcefieldAtom:
         The ForcefieldAtom object contains fields that are related to the
         forcefield at the atom level
     """
-    
+
     def __init__(self, name, charge, radius, resname, group=""):
         """
             Initialize the object

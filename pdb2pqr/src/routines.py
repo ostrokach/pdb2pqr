@@ -1523,7 +1523,7 @@ class Routines:
 
         self.write("Running PDB2PKA and applying at pH %.2f... \n" % ph)
 
-        import pka
+        from pdb2pqr import pka
         from pdb2pka import pka_routines
         init_params = pdb2pka_params.copy()
         init_params.pop('pairene')

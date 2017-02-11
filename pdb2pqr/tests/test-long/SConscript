@@ -9,7 +9,7 @@ AddOption('--long-test-count',
         type=int,
         help='When building the long-test target specify how many tests to run.')
 
-commandLineStart = os.environ['PYTHON'] + ' -m pdb2pqr'
+commandLineStart = 'pdb2pqr_cli'
 nullTarget = '/dev/null'
 if os.name == 'nt':
     nullTarget = 'nul'

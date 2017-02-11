@@ -8,8 +8,8 @@ else:
     #Allow test targets to run in installed version.
     env = Environment()
     if os.name in ['nt', 'posix']:
-        env.Append(ENV={'PATH' : os.environ['PATH']})
-    Export('env')  
+        env.Append(ENV={'PATH': os.environ['PATH']})
+    Export('env')
     pdb2pqr = [File('pdb2pqr.py')]
-    Export('pdb2pqr')   
-    SConscript('tests/SConscript')
+    Export('pdb2pqr')
+    SConscript('./tests/SConscript')

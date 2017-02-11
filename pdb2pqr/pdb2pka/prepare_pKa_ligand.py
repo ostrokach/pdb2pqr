@@ -22,7 +22,7 @@ except:
     scriptpath=os.path.split(sys.argv[0])[0]
     if scriptpath=='.':
         scriptpath=os.getcwd()
-        
+
 #
 # Path to pKa_lig_tool server
 #
@@ -43,7 +43,7 @@ if not os.path.isfile(OPENBABEL):
 #
 pdb2pqr_path=os.path.split(scriptpath)[0]
 sys.path.append(pdb2pqr_path)
-        
+
 class ligand_pKa:
 
     def __init__(self,mol2lines):
@@ -62,28 +62,28 @@ class ligand_pKa:
         #for pKa_object in pKa_objects:
         #    states.append(self.getstate(pKa_object,ref_state))
         #
-        return 
-        
+        return
+
     #
     # -----
     #
-        
+
     def read_mol2(self,mol2lines):
         """Parse the mol2 lines"""
         import StringIO, string
-        mol2fileobj=StringIO.StringIO(string.join(mol2lines))
+        mol2fileobj=StringIO.StringIO(''.join(mol2lines))
         #
         # Use the mol2 parser in pdb2pqr
         #
-        import src.pdb
-        mol2object=src.pdb.MOL2MOLECULE()
+        import pdb2pqr.src.pdb
+        mol2object = pdb2pqr.src.pdb.MOL2MOLECULE()
         mol2object.read(mol2fileobj)
         return mol2object
-        
+
     #
     # -----
     #
-        
+
     def mol2_2_SMILES(self,mol2lines):
         """Convert the mol2 file to a SMILES string"""
         import tempfile
@@ -93,7 +93,7 @@ class ligand_pKa:
         for line in mol2lines:
             fd.write(line)
         fd.close()
-        # 
+        #
         # Do the conversion using Babel
         #
         hydfile=os.path.join(dirname,'noHs.mol2')
@@ -122,7 +122,7 @@ class ligand_pKa:
     def search_pka_ligtool(self,smiles):
         """Search the pka_lig_tool database for a ligand match"""
         import StringIO, urllib
-    
+
         #
         # Get the XML data from the server
         #
@@ -177,13 +177,13 @@ class ligand_pKa:
         return
 
     def get_allhyd_state(self):
-    
+
         return
-        
+
     def get_state(self,allhyd_state,remove_hydrogen,add_hydrogen):
-        
+
         return
-    
+
 
 
 if __name__=='__main__':
@@ -246,7 +246,3 @@ if __name__=='__main__':
         print failed
         print 'OK',len(ok)
         print 'FAILED',len(failed)
-                        
-
-    
-    

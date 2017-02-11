@@ -8,9 +8,9 @@ __date__ = "18 June 2008"
 __author__ = "Samir Unni"
 __version__ = "0.0.1"
 
-from src.aconf import *
+from pdb2pqr.src.aconf import *
 import cgi, cgitb, pickle, urllib, os, glob
-from src.utilities import getEventTrackingString, getTrackingScriptString
+from pdb2pqr.src.utilities import getEventTrackingString, getTrackingScriptString
 
 cgitb.enable()
 form = cgi.FieldStorage()
@@ -40,7 +40,7 @@ def initVars():
             apbsOpalJobIDFile = open('%s%s%s/apbs_opal_job_id' % (INSTALLDIR, TMPDIR, jobid))
             apbsOpalJobID = apbsOpalJobIDFile.read()
             apbsOpalJobIDFile.close()
-            
+
             appLocator = AppServiceLocator()
             resp = appLocator.getAppServicePort(APBS_OPAL_URL).getOutputs(getOutputsRequest(apbsOpalJobID))
             if not os.access('%s%s%s' % (INSTALLDIR, TMPDIR, jobid), os.F_OK):
@@ -55,14 +55,14 @@ def initVars():
 redirectString = """
 <html>
     <head>
-        <meta http-equiv="Refresh" content="url={redirectURL}"> 
+        <meta http-equiv="Refresh" content="url={redirectURL}">
         <link rel="stylesheet" href="{website}pdb2pqr.css"type="text/css">
     </head>
     <body>
     <center>
         You are being automatically redirected to a new location.<br />
-        If your browser does not redirect you in automatically, 
-        <a href="{redirectURL}">click here</a></center>. 
+        If your browser does not redirect you in automatically,
+        <a href="{redirectURL}">click here</a></center>.
     </body>
 </html>""".format(redirectURL=WEBSITE, website=WEBSITE)
 
@@ -93,8 +93,8 @@ def main(apbsOptions):
         <link rel="stylesheet" href="3dmol/css/toggles.css" type="text/css">
         <link rel="stylesheet" href="3dmol/css/ui_css.css" type="text/css">
         <script type="text/JavaScript" src="3dmol/js/pitt_3Dmol.js"></script>
-        
-       
+
+
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
         <script src="http://3dmol.csb.pitt.edu/build/3Dmol.js"></script>
@@ -108,7 +108,7 @@ def main(apbsOptions):
     </body>
 </html>""".format(jobid=jobid,
                   trackingevents=getEventTrackingString(category='apbs',
-                                                        action='visualize', 
+                                                        action='visualize',
                                                         label=str(os.environ["REMOTE_ADDR"])),
                   trackingscript=getTrackingScriptString(jobid=jobid))
 
@@ -131,13 +131,13 @@ def main(apbsOptions):
     </body>
 </html>""".format(jobid=jobid,
                   trackingevents=getEventTrackingString(category='apbs',
-                                                        action='visualize', 
+                                                        action='visualize',
                                                         label=str(os.environ["REMOTE_ADDR"])),
                   trackingscript=getTrackingScriptString(jobid=jobid))
 
     if(tool == 'tool_3dmol'):
         print string_3dmol
     if(tool == 'tool_jmol'):
-        print string_jmol 
+        print string_jmol
 
 main(initVars())
